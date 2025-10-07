@@ -13,7 +13,6 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src",
     "resolveJsonModule": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -25,21 +24,28 @@
     "incremental": true,
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"],
-      "@shared/*": ["../shared/*"],
-      "@types/*": ["src/types/*"]
+      "@shared/*": ["shared/*"],
+      "@types/*": ["shared/types/*"]
     }
   },
   "include": [
-    "src/**/*",
-    "types/**/*",
+    "shared/**/*",
+    "services/*/src/**/*",
+    "frontend/*/src/**/*",
+    "gateway/src/**/*",
     "**/*.d.ts"
   ],
   "exclude": [
     "node_modules",
+    "**/node_modules",
     "dist",
+    "**/dist",
+    "build",
+    "**/build",
     "**/*.test.ts",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "database/**/*",
+    "docs/**/*"
   ],
   "ts-node": {
     "require": ["tsconfig-paths/register"]
