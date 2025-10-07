@@ -1,0 +1,80 @@
+{
+  "name": "evdms",
+  "version": "1.0.0",
+  "description": "Electric Vehicle Dealer Management System - Microservices Architecture",
+  "main": "index.js",
+  "scripts": {
+    "dev": "docker-compose up --build",
+    "dev:logs": "docker-compose logs -f",
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "clean": "docker-compose down -v --rmi all",
+    "build": "docker-compose build",
+    "restart": "docker-compose restart",
+    "install:all": "concurrently \"npm run install:services\" \"npm run install:frontend\" \"npm run install:gateway\"",
+    "install:services": "concurrently \"cd services/auth-service && npm install\" \"cd services/dealer-service && npm install\" \"cd services/customer-service && npm install\" \"cd services/manufacturer-service && npm install\" \"cd services/report-service && npm install\" \"cd services/notification-service && npm install\"",
+    "install:frontend": "concurrently \"cd frontend/dealer-dashboard && npm install\" \"cd frontend/manufacturer-dashboard && npm install\" \"cd frontend/admin-panel && npm install\"",
+    "install:gateway": "cd gateway && npm install",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "docs:serve": "docsify serve docs",
+    "db:migrate": "cd database && node migrate.js",
+    "db:seed": "cd database && node seed.js"
+  },
+  "keywords": [
+    "microservices",
+    "electric-vehicle",
+    "dealer-management",
+    "typescript",
+    "react",
+    "docker",
+    "postgresql",
+    "mongodb",
+    "rabbitmq",
+    "ai-analytics"
+  ],
+  "author": "EVDMS Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.5",
+    "@types/node": "^20.8.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "@typescript-eslint/parser": "^6.7.4",
+    "concurrently": "^8.2.1",
+    "docsify-cli": "^4.4.4",
+    "eslint": "^8.50.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "husky": "^8.0.3",
+    "jest": "^29.7.0",
+    "lint-staged": "^14.0.1",
+    "prettier": "^3.0.3",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "pg": "^8.16.3"
+  },
+  "workspaces": [
+    "services/*",
+    "frontend/*",
+    "gateway"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/giahuy0968/EVDealerManagementSystem.git"
+  },
+  "bugs": {
+    "url": "https://github.com/giahuy0968/EVDealerManagementSystem/issues"
+  },
+  "homepage": "https://github.com/giahuy0968/EVDealerManagementSystem#readme"
+}
