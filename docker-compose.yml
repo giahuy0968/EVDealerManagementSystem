@@ -1,267 +1,262 @@
 version: '3.8'
 
 services:
-  # Database
+  # Database Services
   postgres:
     image: postgres:15-alpine
-    container_name: ev-postgres
     environment:
-      POSTGRES_DB: evdealerdb
-      POSTGRES_USER: evuser
-      POSTGRES_PASSWORD: evpassword
-      POSTGRES_MULTIPLE_EXTENSIONS: pg_stat_statements
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: evdms
+      POSTGRES_USER: evdms_user
+      POSTGRES_PASSWORD: evdms_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d
+      - ./database/postgres:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
     networks:
-      - ev-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U evuser -d evdealerdb"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - evdms-network
+
+  mongo:
+    image: mongo:7.0
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: evdms_user
+      MONGO_INITDB_ROOT_PASSWORD: evdms_password
+      MONGO_INITDB_DATABASE: evdms
+    volumes:
+      - mongo_data:/data/db
+      - ./database/mongo:/docker-entrypoint-initdb.d
+    ports:
+      - "27017:27017"
+    networks:
+      - evdms-network
+
+  # Message Queue
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: evdms_user
+      RABBITMQ_DEFAULT_PASS: evdms_password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - evdms-network
 
   # Redis for caching
   redis:
     image: redis:7-alpine
-    container_name: ev-redis
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
-      - ev-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
+      - evdms-network
+
+  # Microservices
+  auth-service:
+    build: ./services/auth-service
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: evdms
+      DB_USER: evdms_user
+      DB_PASSWORD: evdms_password
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-jwt-secret-key
+      JWT_EXPIRES_IN: 24h
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - evdms-network
+
+  dealer-service:
+    build: ./services/dealer-service
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: evdms
+      DB_USER: evdms_user
+      DB_PASSWORD: evdms_password
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://evdms_user:evdms_password@rabbitmq:5672
+      AUTH_SERVICE_URL: http://auth-service:3001
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+      - auth-service
+    networks:
+      - evdms-network
+
+  customer-service:
+    build: ./services/customer-service
+    ports:
+      - "3003:3003"
+    environment:
+      NODE_ENV: development
+      PORT: 3003
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: evdms
+      DB_USER: evdms_user
+      DB_PASSWORD: evdms_password
+      MONGO_URL: mongodb://evdms_user:evdms_password@mongo:27017/evdms
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://evdms_user:evdms_password@rabbitmq:5672
+      AUTH_SERVICE_URL: http://auth-service:3001
+    depends_on:
+      - postgres
+      - mongo
+      - redis
+      - rabbitmq
+      - auth-service
+    networks:
+      - evdms-network
+
+  manufacturer-service:
+    build: ./services/manufacturer-service
+    ports:
+      - "3004:3004"
+    environment:
+      NODE_ENV: development
+      PORT: 3004
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: evdms
+      DB_USER: evdms_user
+      DB_PASSWORD: evdms_password
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://evdms_user:evdms_password@rabbitmq:5672
+      AUTH_SERVICE_URL: http://auth-service:3001
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+      - auth-service
+    networks:
+      - evdms-network
+
+  report-service:
+    build: ./services/report-service
+    ports:
+      - "3005:3005"
+    environment:
+      NODE_ENV: development
+      PORT: 3005
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: evdms
+      DB_USER: evdms_user
+      DB_PASSWORD: evdms_password
+      MONGO_URL: mongodb://evdms_user:evdms_password@mongo:27017/evdms
+      REDIS_URL: redis://redis:6379
+      AUTH_SERVICE_URL: http://auth-service:3001
+    depends_on:
+      - postgres
+      - mongo
+      - redis
+      - auth-service
+    networks:
+      - evdms-network
+
+  notification-service:
+    build: ./services/notification-service
+    ports:
+      - "3006:3006"
+    environment:
+      NODE_ENV: development
+      PORT: 3006
+      RABBITMQ_URL: amqp://evdms_user:evdms_password@rabbitmq:5672
+      REDIS_URL: redis://redis:6379
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_USER: your-email@gmail.com
+      SMTP_PASS: your-app-password
+    depends_on:
+      - rabbitmq
+      - redis
+    networks:
+      - evdms-network
 
   # API Gateway
   api-gateway:
-    build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
-    container_name: ev-api-gateway
+    build: ./gateway
     ports:
-      - "8080:8080"
+      - "3000:3000"
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SERVER_PORT=8080
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/evdealerdb
-      - SPRING_DATASOURCE_USERNAME=evuser
-      - SPRING_DATASOURCE_PASSWORD=evpassword
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_SHOW_SQL=true
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
-      - AUTH_SERVICE_URL=http://auth-service:8081
-      - CUSTOMER_SERVICE_URL=http://customer-service:8082
-      - DEALER_SERVICE_URL=http://dealer-service:8083
-      - MANUFACTURER_SERVICE_URL=http://manufacturer-service:8084
-      - NOTIFICATION_SERVICE_URL=http://notification-service:8085
-      - REPORT_ANALYTICS_SERVICE_URL=http://report-analytics-service:8086
+      NODE_ENV: development
+      PORT: 3000
+      AUTH_SERVICE_URL: http://auth-service:3001
+      DEALER_SERVICE_URL: http://dealer-service:3002
+      CUSTOMER_SERVICE_URL: http://customer-service:3003
+      MANUFACTURER_SERVICE_URL: http://manufacturer-service:3004
+      REPORT_SERVICE_URL: http://report-service:3005
+      NOTIFICATION_SERVICE_URL: http://notification-service:3006
+      REDIS_URL: redis://redis:6379
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      auth-service:
-        condition: service_healthy
+      - auth-service
+      - dealer-service
+      - customer-service
+      - manufacturer-service
+      - report-service
+      - notification-service
     networks:
-      - ev-network
-    restart: unless-stopped
+      - evdms-network
 
-  # Authentication Service
-  auth-service:
-    build:
-      context: ./auth-service
-      dockerfile: Dockerfile
-    container_name: ev-auth-service
+  # Frontend Applications
+  dealer-dashboard:
+    build: ./frontend/dealer-dashboard
     ports:
-      - "8081:8080"
+      - "3010:3000"
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SERVER_PORT=8080
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/evdealerdb
-      - SPRING_DATASOURCE_USERNAME=evuser
-      - SPRING_DATASOURCE_PASSWORD=evpassword
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_SHOW_SQL=true
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
-      - JWT_SECRET=mySecretKey123456789012345678901234567890
-      - JWT_EXPIRATION=86400000
+      REACT_APP_API_URL: http://localhost:3000/api
+      REACT_APP_WEBSOCKET_URL: ws://localhost:3000
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - api-gateway
     networks:
-      - ev-network
-    restart: unless-stopped
+      - evdms-network
 
-  # Customer Service
-  customer-service:
-    build:
-      context: ./customer-service
-      dockerfile: Dockerfile
-    container_name: ev-customer-service
+  manufacturer-dashboard:
+    build: ./frontend/manufacturer-dashboard
     ports:
-      - "8082:8080"
+      - "3011:3000"
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SERVER_PORT=8080
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/evdealerdb
-      - SPRING_DATASOURCE_USERNAME=evuser
-      - SPRING_DATASOURCE_PASSWORD=evpassword
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_SHOW_SQL=true
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
-      - AUTH_SERVICE_URL=http://auth-service:8080
-      - NOTIFICATION_SERVICE_URL=http://notification-service:8080
+      REACT_APP_API_URL: http://localhost:3000/api
+      REACT_APP_WEBSOCKET_URL: ws://localhost:3000
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - api-gateway
     networks:
-      - ev-network
-    restart: unless-stopped
+      - evdms-network
 
-  # Dealer Service
-  dealer-service:
-    build:
-      context: ./dealer-service
-      dockerfile: Dockerfile
-    container_name: ev-dealer-service
+  admin-panel:
+    build: ./frontend/admin-panel
     ports:
-      - "8083:8080"
+      - "3012:3000"
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SERVER_PORT=8080
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/evdealerdb
-      - SPRING_DATASOURCE_USERNAME=evuser
-      - SPRING_DATASOURCE_PASSWORD=evpassword
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_SHOW_SQL=true
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
-      - AUTH_SERVICE_URL=http://auth-service:8080
-      - CUSTOMER_SERVICE_URL=http://customer-service:8080
-      - MANUFACTURER_SERVICE_URL=http://manufacturer-service:8080
-      - NOTIFICATION_SERVICE_URL=http://notification-service:8080
+      REACT_APP_API_URL: http://localhost:3000/api
+      REACT_APP_WEBSOCKET_URL: ws://localhost:3000
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - api-gateway
     networks:
-      - ev-network
-    restart: unless-stopped
-
-  # Manufacturer Service
-  manufacturer-service:
-    build:
-      context: ./manufacturer-service
-      dockerfile: Dockerfile
-    container_name: ev-manufacturer-service
-    ports:
-      - "8084:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SERVER_PORT=8080
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/evdealerdb
-      - SPRING_DATASOURCE_USERNAME=evuser
-      - SPRING_DATASOURCE_PASSWORD=evpassword
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_SHOW_SQL=true
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
-      - AUTH_SERVICE_URL=http://auth-service:8080
-      - DEALER_SERVICE_URL=http://dealer-service:8080
-      - NOTIFICATION_SERVICE_URL=http://notification-service:8080
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - ev-network
-    restart: unless-stopped
-
-  # Notification Service
-  notification-service:
-    build:
-      context: ./notification-service
-      dockerfile: Dockerfile
-    container_name: ev-notification-service
-    ports:
-      - "8085:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SERVER_PORT=8080
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/evdealerdb
-      - SPRING_DATASOURCE_USERNAME=evuser
-      - SPRING_DATASOURCE_PASSWORD=evpassword
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_SHOW_SQL=true
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
-      - SMTP_HOST=smtp.gmail.com
-      - SMTP_PORT=587
-      - SMTP_USERNAME=your-email@gmail.com
-      - SMTP_PASSWORD=your-app-password
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - ev-network
-    restart: unless-stopped
-
-  # Report Analytics Service
-  report-analytics-service:
-    build:
-      context: ./report-analytics-service
-      dockerfile: Dockerfile
-    container_name: ev-report-analytics-service
-    ports:
-      - "8086:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SERVER_PORT=8080
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/evdealerdb
-      - SPRING_DATASOURCE_USERNAME=evuser
-      - SPRING_DATASOURCE_PASSWORD=evpassword
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_SHOW_SQL=true
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
-      - AUTH_SERVICE_URL=http://auth-service:8080
-      - CUSTOMER_SERVICE_URL=http://customer-service:8080
-      - DEALER_SERVICE_URL=http://dealer-service:8080
-      - MANUFACTURER_SERVICE_URL=http://manufacturer-service:8080
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - ev-network
-    restart: unless-stopped
-
-networks:
-  ev-network:
-    driver: bridge
-    name: ev-network
+      - evdms-network
 
 volumes:
   postgres_data:
-    driver: local
+  mongo_data:
+  rabbitmq_data:
   redis_data:
-    driver: local
+
+networks:
+  evdms-network:
+    driver: bridge
