@@ -25,12 +25,12 @@ export interface UserAttributes {
   passwordHash: string;
   fullName: string;
   role: UserRole;
-  dealerId?: string;
-  manufacturerId?: string;
+  dealerId?: string | null;
+  manufacturerId?: string | null;
   isActive: boolean;
-  lastLogin?: Date;
+  lastLogin?: Date | null;
   failedLoginAttempts: number;
-  lockedUntil?: Date;
+  lockedUntil?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -61,8 +61,8 @@ export interface RegisterRequestDTO {
   password: string;
   fullName: string;
   role: UserRole;
-  dealerId?: string;
-  manufacturerId?: string;
+  dealerId?: string | null;
+  manufacturerId?: string | null;
 }
 
 export interface LoginRequestDTO {
@@ -86,10 +86,10 @@ export interface UserPublicDTO {
   email: string;
   fullName: string;
   role: UserRole;
-  dealerId?: string;
-  manufacturerId?: string;
+  dealerId?: string | null;
+  manufacturerId?: string | null;
   isActive: boolean;
-  lastLogin?: Date;
+  lastLogin?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -194,12 +194,12 @@ export interface ApiResponse<T = any> {
 }
 
 export interface DeviceInfo {
-  userAgent?: string;
-  platform?: string;
-  browser?: string;
-  version?: string;
-  mobile?: boolean;
-  fingerprint?: string;
+  userAgent?: string | undefined;
+  platform?: string | undefined;
+  browser?: string | undefined;
+  version?: string | undefined;
+  mobile?: boolean | undefined;
+  fingerprint?: string | undefined;
 }
 
 // Express Request extension

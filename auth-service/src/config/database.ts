@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { config } from '@/config';
+import { config } from 'c:/OOP-BUILD/EVDealerManagementSystem/auth-service/src/config';
 
 // Create Sequelize instance
 export const sequelize = new Sequelize({
