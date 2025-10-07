@@ -1,35 +1,30 @@
-# Stage 1: Build stage
-FROM maven:3.9-openjdk-21-slim AS build
+FROM node:18-alpine
+
 WORKDIR /app
 
-# Copy pom.xml and download dependencies
-COPY pom.xml .
-RUN mvn dependency:go-offline -B
+# Copy package files
+COPY package*.json ./
 
-# Copy source code and build
-COPY src ./src
-RUN mvn clean package -DskipTests -B
+# Install dependencies
+RUN npm ci --only=production
 
-# Stage 2: Runtime stage
-FROM eclipse-temurin:21-jre-alpine AS runtime
-WORKDIR /app
+# Copy source code
+COPY . .
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S appuser && \
-    adduser -u 1001 -S appuser -G appuser
-
-# Copy the built JAR from build stage
-COPY --from=build /app/target/*.jar app.jar
-RUN chown appuser:appuser app.jar
-
-USER appuser
+# Build the application
+RUN npm run build
 
 # Expose port
-EXPOSE 8080
+EXPOSE 3001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+  CMD curl -f http://localhost:3001/health || exit 1
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S authservice -u 1001
+USER authservice
+
+# Start the application
+CMD ["npm", "start"]
