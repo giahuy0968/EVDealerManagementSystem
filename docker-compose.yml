@@ -257,6 +257,7 @@ volumes:
   rabbitmq_data:
   redis_data:
 
+
 networks:
   evdms-network:
     driver: bridge
