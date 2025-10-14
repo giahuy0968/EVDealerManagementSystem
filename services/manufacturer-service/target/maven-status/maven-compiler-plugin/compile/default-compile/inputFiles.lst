@@ -1,0 +1,14 @@
+/Users/phanhoangphuc/EVDealerManagementSystem/services/manufacturer-service/src/main/java/com/evdealer/manufacturer/ManufacturerServiceApplication.java
+/Users/phanhoangphuc/EVDealerManagementSystem/services/manufacturer-service/src/main/java/com/evdealer/manufacturer/config/DatabaseConfig.java
+/Users/phanhoangphuc/EVDealerManagementSystem/services/manufacturer-service/src/main/java/com/evdealer/manufacturer/config/RabbitMQConfig.java
+/Users/phanhoangphuc/EVDealerManagementSystem/services/manufacturer-service/src/main/java/com/evdealer/manufacturer/config/RedisConfig.java
+/Users/phanhoangphuc/EVDealerManagementSystem/services/manufacturer-service/src/main/java/com/evdealer/manufacturer/controller/ProductController.java
+/Users/phanhoangphuc/EVDealerManagementSystem/services/manufacturer-service/src/main/java/com/evdealer/manufacturer/exception/GlobalExceptionHandler.java
+/Users/phanhoangphuc/EVDealerManagementSystem/services/manufacturer-service/src/main/java/com/evdealer/manufacturer/exception/ResourceNotFoundException.java
+/Users/phanhoangphuc/EVDealerManagementSystem/services/manufacturer-service/src/main/java/com/evdealer/manufacturer/model/dto/ProductRequest.java
+/Users/phanhoangphuc/EVDealerManagementSystem/services/manufacturer-service/src/main/java/com/evdealer/manufacturer/model/dto/ProductResponse.java
+/Users/phanhoangphuc/EVDealerManagementSystem/services/manufacturer-service/src/main/java/com/evdealer/manufacturer/model/entity/Product.java
+/Users/phanhoangphuc/EVDealerManagementSystem/services/manufacturer-service/src/main/java/com/evdealer/manufacturer/repository/ProductRepository.java
+/Users/phanhoangphuc/EVDealerManagementSystem/services/manufacturer-service/src/main/java/com/evdealer/manufacturer/service/ProductService.java
+/Users/phanhoangphuc/EVDealerManagementSystem/services/manufacturer-service/src/main/java/com/evdealer/manufacturer/service/impl/ProductServiceImpl.java
+/Users/phanhoangphuc/EVDealerManagementSystem/services/manufacturer-service/src/main/java/com/evdealer/manufacturer/util/DatabaseInitializer.java
