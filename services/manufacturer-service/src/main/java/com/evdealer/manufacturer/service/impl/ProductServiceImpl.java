@@ -6,9 +6,8 @@ import com.evdealer.manufacturer.model.entity.Product;
 import com.evdealer.manufacturer.exception.ResourceNotFoundException;
 import com.evdealer.manufacturer.repository.ProductRepository;
 import com.evdealer.manufacturer.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.beans.factory.annotation.Autowired; // Giữ lại import, nhưng không dùng
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,11 +18,14 @@ import java.util.stream.Collectors;
 @Transactional
 public class ProductServiceImpl implements ProductService {
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository; // <--- SỬA ĐỔI: Dùng final
+
+    // <--- SỬA ĐỔI: Constructor Injection
+    public ProductServiceImpl(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
 
     @Override
-    @CacheEvict(value = {"products", "activeProducts"}, allEntries = true)
     public ProductResponse createProduct(ProductRequest productRequest) {
         // Check if product already exists
         if (productRepository.existsByModelNameAndVersionAndColor(
@@ -47,7 +49,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "product", key = "#id")
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
@@ -56,7 +57,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "products")
     public List<ProductResponse> getAllProducts() {
         return productRepository.findAll().stream()
                 .map(ProductResponse::new)
@@ -65,7 +65,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "activeProducts")
     public List<ProductResponse> getActiveProducts() {
         return productRepository.findByStatus(Product.ProductStatus.ACTIVE).stream()
                 .map(ProductResponse::new)
@@ -73,10 +72,20 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @CacheEvict(value = {"product", "products", "activeProducts"}, allEntries = true)
     public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+
+        // Logic kiểm tra trùng lặp (Giữ nguyên)
+        productRepository.findByModelNameAndVersionAndColor(
+            productRequest.getModelName(), 
+            productRequest.getVersion(), 
+            productRequest.getColor())
+            .ifPresent(existingProduct -> {
+                if (!existingProduct.getId().equals(id)) {
+                    throw new IllegalArgumentException("Product with same model, version and color already exists");
+                }
+            });
 
         product.setModelName(productRequest.getModelName());
         product.setVersion(productRequest.getVersion());
@@ -90,8 +99,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @CacheEvict(value = {"product", "products", "activeProducts"}, allEntries = true)
-    public void deleteProduct(Long id) {
+    public void discontinueProduct(Long id) { // <--- SỬA ĐỔI: Triển khai phương thức đổi tên
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
         
@@ -100,7 +108,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @CacheEvict(value = {"product", "products", "activeProducts"}, allEntries = true)
     public ProductResponse updateInventory(Long id, Integer newInventory) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));

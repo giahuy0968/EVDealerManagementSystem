@@ -10,7 +10,7 @@ public interface ProductService {
     List<ProductResponse> getAllProducts();
     List<ProductResponse> getActiveProducts();
     ProductResponse updateProduct(Long id, ProductRequest productRequest);
-    void deleteProduct(Long id);
+    void discontinueProduct(Long id); // <--- SỬA ĐỔI: Đổi tên thành discontinueProduct
     ProductResponse updateInventory(Long id, Integer newInventory);
     List<ProductResponse> searchProducts(String keyword);
 }

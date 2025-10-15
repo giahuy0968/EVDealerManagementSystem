@@ -1,0 +1,36 @@
+# Node.js (if any frontend)
+node_modules/
+
+# Java/Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+*.log
+
+# IDE
+.idea/
+.vscode/settings.json
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Database
+*.db
+*.sqlite
+
+# Temporary files
+*.tmp
+*.bak

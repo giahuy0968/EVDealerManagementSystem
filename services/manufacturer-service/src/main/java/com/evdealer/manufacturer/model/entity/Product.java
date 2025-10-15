@@ -2,12 +2,15 @@ package com.evdealer.manufacturer.model.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import java.io.Serializable; // <--- SỬA ĐỔI: Thêm import Serializable
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "products")
-public class Product {
+@Table(name = "products", uniqueConstraints = { // <--- SỬA ĐỔI: Thêm Unique Constraint
+    @UniqueConstraint(columnNames = {"model_name", "version", "color"})
+})
+public class Product implements Serializable { // <--- SỬA ĐỔI: implements Serializable
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -78,7 +81,7 @@ public class Product {
         updatedAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
+    // Getters and Setters (Giữ nguyên)
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

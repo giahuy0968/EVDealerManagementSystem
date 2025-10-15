@@ -1,10 +1,11 @@
 package com.evdealer.manufacturer.model.dto;
 
 import com.evdealer.manufacturer.model.entity.Product;
+import java.io.Serializable; // <--- SỬA ĐỔI: Thêm Serializable
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class ProductResponse {
+public class ProductResponse implements Serializable { // <--- SỬA ĐỔI: implements Serializable
     private Long id;
     private String modelName;
     private String version;
@@ -33,7 +34,7 @@ public class ProductResponse {
     // Default constructor
     public ProductResponse() {}
 
-    // Getters and Setters
+    // Getters and Setters (Giữ nguyên)
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
