@@ -74,7 +74,22 @@ public class User {
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
-    // ...other getters/setters as needed...
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        this.isActive = active;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 
     public enum Role {
         ADMIN, DEALER_MANAGER, DEALER_STAFF, EVM_STAFF
