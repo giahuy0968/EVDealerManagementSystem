@@ -40,7 +40,7 @@ export const getStockRequest = async (req: Request, res: Response, next: NextFun
 
 export class StockController {
     // Method to get all stocks
-    public async getAllStocks(req, res) {
+    public async getAllStocks(req: Request, res: Response) {
         try {
             // Logic to retrieve all stocks
             res.status(200).json({ message: "Retrieved all stocks" });
@@ -50,7 +50,7 @@ export class StockController {
     }
 
     // Method to get a stock by ID
-    public async getStockById(req, res) {
+    public async getStockById(req: Request, res: Response) {
         const { id } = req.params;
         try {
             // Logic to retrieve a stock by ID
@@ -61,7 +61,7 @@ export class StockController {
     }
 
     // Method to create a new stock
-    public async createStock(req, res) {
+    public async createStock(req: Request, res: Response) {
         const stockData = req.body;
         try {
             // Logic to create a new stock
@@ -72,7 +72,7 @@ export class StockController {
     }
 
     // Method to update a stock by ID
-    public async updateStock(req, res) {
+    public async updateStock(req: Request, res: Response) {
         const { id } = req.params;
         const stockData = req.body;
         try {
@@ -84,7 +84,7 @@ export class StockController {
     }
 
     // Method to delete a stock by ID
-    public async deleteStock(req, res) {
+    public async deleteStock(req: Request, res: Response) {
         const { id } = req.params;
         try {
             // Logic to delete a stock by ID
