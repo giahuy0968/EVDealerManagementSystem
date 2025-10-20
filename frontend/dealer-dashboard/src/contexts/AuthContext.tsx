@@ -14,14 +14,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // TEMPORARY: Mock user for testing UI without backend
-  const [user, setUser] = useState<User | null>({
-    id: '1',
-    username: 'Demo Manager',
-    email: 'demo@dealer.com',
-    role: 'DEALER_MANAGER',
-    createdAt: new Date().toISOString()
-  })
+  // Start unauthenticated by default for demo login flow
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
 
   // TODO: Uncomment when backend is ready

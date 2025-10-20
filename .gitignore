@@ -118,3 +118,4 @@ models/
 # Test files
 test-results/
 __tests__/fixtures/
+node_modules

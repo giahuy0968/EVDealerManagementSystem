@@ -2,6 +2,8 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Link, Route, Routes, useLocation } from 'react-router-dom'
 import './index.css'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
+import Login from './pages/Login'
 
 function Dashboard() {
   return (
@@ -112,9 +114,12 @@ function Settings() {
   )
 }
 
-function App() {
+function AppContent() {
   const location = useLocation()
-  
+  const { isAuthenticated } = useAuth()
+
+  if (!isAuthenticated) return <Login />
+
   return (
     <div className="app-container">
       <aside className="sidebar">
@@ -150,7 +155,9 @@ function App() {
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>,
 )
