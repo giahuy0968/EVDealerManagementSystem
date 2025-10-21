@@ -6,7 +6,8 @@ public class VerifyEmailRequest {
     @NotBlank(message = "Verification token is required")
     private String token;
 
-    public VerifyEmailRequest() {}
+    public VerifyEmailRequest() {
+    }
 
     public VerifyEmailRequest(String token) {
         this.token = token;

@@ -77,12 +77,12 @@ public class AuthService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             // Increment failed login attempts
             user.setFailedLoginAttempts(user.getFailedLoginAttempts() + 1);
-            
+
             // Lock account after 5 failed attempts
             if (user.getFailedLoginAttempts() >= 5) {
                 user.setLockedUntil(Instant.now().plusSeconds(900)); // Lock for 15 minutes
             }
-            
+
             userRepository.save(user);
             throw new RuntimeException("Invalid credentials");
         }
@@ -98,7 +98,8 @@ public class AuthService {
         user.setLastLogin(Instant.now());
         userRepository.save(user);
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole() != null ? user.getRole().toString() : "USER");
+        String token = jwtUtil.generateToken(user.getEmail(),
+                user.getRole() != null ? user.getRole().toString() : "USER");
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
         // Save session
@@ -111,7 +112,7 @@ public class AuthService {
         session.setCreatedAt(Instant.now());
         sessionRepository.save(session);
 
-        return new AuthResponse(token, refreshToken, user.getEmail(), user.getFullName(), 
+        return new AuthResponse(token, refreshToken, user.getEmail(), user.getFullName(),
                 user.getRole() != null ? user.getRole().toString() : "USER");
     }
 
@@ -119,7 +120,7 @@ public class AuthService {
     public void logout(String refreshToken) {
         Session session = sessionRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
-        
+
         sessionRepository.delete(session);
     }
 
@@ -141,7 +142,8 @@ public class AuthService {
         User user = userRepository.findById(session.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String newAccessToken = jwtUtil.generateToken(user.getEmail(), user.getRole() != null ? user.getRole().toString() : "USER");
+        String newAccessToken = jwtUtil.generateToken(user.getEmail(),
+                user.getRole() != null ? user.getRole().toString() : "USER");
         String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
         // Update session with new refresh token
@@ -190,8 +192,7 @@ public class AuthService {
         EmailVerificationToken verificationToken = new EmailVerificationToken(
                 user.getId().getMostSignificantBits(),
                 token,
-                LocalDateTime.now().plusHours(24)
-        );
+                LocalDateTime.now().plusHours(24));
         emailVerificationTokenRepository.save(verificationToken);
 
         // TODO: Send email with verification link

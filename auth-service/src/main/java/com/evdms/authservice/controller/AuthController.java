@@ -21,9 +21,8 @@ public class AuthController {
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         User user = authService.register(request);
         return ResponseEntity.ok(Map.of(
-            "message", "Registration successful",
-            "userId", user.getId()
-        ));
+                "message", "Registration successful",
+                "userId", user.getId()));
     }
 
     @PostMapping("/login")
@@ -54,9 +53,8 @@ public class AuthController {
     public ResponseEntity<?> verifyToken(@Valid @RequestBody VerifyTokenRequest request) {
         boolean isValid = authService.verifyToken(request.getToken());
         return ResponseEntity.ok(Map.of(
-            "valid", isValid,
-            "message", isValid ? "Token is valid" : "Token is invalid or expired"
-        ));
+                "valid", isValid,
+                "message", isValid ? "Token is valid" : "Token is invalid or expired"));
     }
 
     @PostMapping("/verify-email")

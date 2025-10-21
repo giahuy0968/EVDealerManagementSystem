@@ -6,7 +6,8 @@ public class LogoutRequest {
     @NotBlank(message = "Refresh token is required")
     private String refreshToken;
 
-    public LogoutRequest() {}
+    public LogoutRequest() {
+    }
 
     public LogoutRequest(String refreshToken) {
         this.refreshToken = refreshToken;

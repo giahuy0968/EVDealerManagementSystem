@@ -31,7 +31,8 @@ public class EmailVerificationToken {
     }
 
     // Constructors
-    public EmailVerificationToken() {}
+    public EmailVerificationToken() {
+    }
 
     public EmailVerificationToken(Long userId, String token, LocalDateTime expiresAt) {
         this.userId = userId;

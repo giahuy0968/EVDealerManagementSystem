@@ -4,7 +4,8 @@ public class TokenResponse {
     private String accessToken;
     private String refreshToken;
 
-    public TokenResponse() {}
+    public TokenResponse() {
+    }
 
     public TokenResponse(String accessToken, String refreshToken) {
         this.accessToken = accessToken;
