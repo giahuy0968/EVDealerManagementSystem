@@ -28,6 +28,7 @@ public class User {
     private UUID dealerId;
     private UUID manufacturerId;
     private boolean isActive = true;
+    private boolean emailVerified = false;
     private Instant lastLogin;
     private int failedLoginAttempts;
     private Instant lockedUntil;
@@ -89,6 +90,70 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+    public UUID getDealerId() {
+        return dealerId;
+    }
+
+    public void setDealerId(UUID dealerId) {
+        this.dealerId = dealerId;
+    }
+
+    public UUID getManufacturerId() {
+        return manufacturerId;
+    }
+
+    public void setManufacturerId(UUID manufacturerId) {
+        this.manufacturerId = manufacturerId;
+    }
+
+    public Instant getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(Instant lastLogin) {
+        this.lastLogin = lastLogin;
+    }
+
+    public int getFailedLoginAttempts() {
+        return failedLoginAttempts;
+    }
+
+    public void setFailedLoginAttempts(int failedLoginAttempts) {
+        this.failedLoginAttempts = failedLoginAttempts;
+    }
+
+    public Instant getLockedUntil() {
+        return lockedUntil;
+    }
+
+    public void setLockedUntil(Instant lockedUntil) {
+        this.lockedUntil = lockedUntil;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public enum Role {

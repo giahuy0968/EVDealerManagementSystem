@@ -11,9 +11,8 @@ public class Session {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
 
     @Column(nullable = false)
     private String refreshToken;
@@ -30,11 +29,11 @@ public class Session {
     public void setId(UUID id) {
         this.id = id;
     }
-    public User getUser() {
-        return user;
+    public UUID getUserId() {
+        return userId;
     }
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
     public String getRefreshToken() {
         return refreshToken;

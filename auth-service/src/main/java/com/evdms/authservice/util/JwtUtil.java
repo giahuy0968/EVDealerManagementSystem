@@ -53,6 +53,10 @@ public class JwtUtil {
         return extractClaims(token).getSubject();
     }
 
+    public String extractUsername(String token) {
+        return extractClaims(token).getSubject();
+    }
+
     public boolean isTokenExpired(String token) {
         return extractClaims(token).getExpiration().before(new Date());
     }

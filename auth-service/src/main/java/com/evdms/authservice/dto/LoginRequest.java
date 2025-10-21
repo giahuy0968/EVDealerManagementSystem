@@ -13,6 +13,8 @@ public class LoginRequest {
     @Size(min = 8)
     private String password;
 
+    private String ipAddress;
+
     public String getEmail() {
         return email;
     }
@@ -27,5 +29,13 @@ public class LoginRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
     }
 }
