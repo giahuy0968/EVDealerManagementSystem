@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
     @Autowired
     private AuthService authService;
@@ -49,9 +49,10 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/verify-token")
-    public ResponseEntity<?> verifyToken(@Valid @RequestBody VerifyTokenRequest request) {
-        boolean isValid = authService.verifyToken(request.getToken());
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyToken(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        String token = (authHeader != null && authHeader.startsWith("Bearer ")) ? authHeader.substring(7) : null;
+        boolean isValid = token != null && authService.verifyToken(token);
         return ResponseEntity.ok(Map.of(
                 "valid", isValid,
                 "message", isValid ? "Token is valid" : "Token is invalid or expired"));
