@@ -35,10 +35,14 @@ public class UserAdminController {
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable("id") UUID id, @RequestBody Map<String, Object> body) {
         User u = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        if (body.containsKey("fullName")) u.setFullName((String) body.get("fullName"));
-        if (body.containsKey("email")) u.setEmail((String) body.get("email"));
-        if (body.containsKey("username")) u.setUsername((String) body.get("username"));
-        if (body.containsKey("avatarUrl")) u.setAvatarUrl((String) body.get("avatarUrl"));
+        if (body.containsKey("fullName"))
+            u.setFullName((String) body.get("fullName"));
+        if (body.containsKey("email"))
+            u.setEmail((String) body.get("email"));
+        if (body.containsKey("username"))
+            u.setUsername((String) body.get("username"));
+        if (body.containsKey("avatarUrl"))
+            u.setAvatarUrl((String) body.get("avatarUrl"));
         u.setUpdatedAt(Instant.now());
         return ResponseEntity.ok(userRepository.save(u));
     }

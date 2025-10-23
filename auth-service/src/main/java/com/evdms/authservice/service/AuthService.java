@@ -181,14 +181,17 @@ public class AuthService {
     // Profile endpoints
     public User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getName() == null) throw new RuntimeException("Unauthorized");
+        if (auth == null || auth.getName() == null)
+            throw new RuntimeException("Unauthorized");
         return userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     public User updateCurrentUser(String fullName, String avatarUrl) {
         User user = getCurrentUser();
-        if (fullName != null && !fullName.isBlank()) user.setFullName(fullName);
-        if (avatarUrl != null && !avatarUrl.isBlank()) user.setAvatarUrl(avatarUrl);
+        if (fullName != null && !fullName.isBlank())
+            user.setFullName(fullName);
+        if (avatarUrl != null && !avatarUrl.isBlank())
+            user.setAvatarUrl(avatarUrl);
         user.setUpdatedAt(Instant.now());
         return userRepository.save(user);
     }

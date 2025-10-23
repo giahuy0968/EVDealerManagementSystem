@@ -36,7 +36,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@Valid @RequestBody LogoutRequest request, @RequestHeader(value = "Authorization", required = false) String authHeader) {
+    public ResponseEntity<?> logout(@Valid @RequestBody LogoutRequest request,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         authService.logout(request.getRefreshToken());
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
@@ -109,14 +110,14 @@ public class AuthController {
                 "username", user.getUsername(),
                 "fullName", user.getFullName(),
                 "role", user.getRole() != null ? user.getRole().toString() : "USER",
-                "avatarUrl", user.getAvatarUrl()
-        ));
+                "avatarUrl", user.getAvatarUrl()));
     }
 
     @PutMapping("/profile")
     public ResponseEntity<?> updateProfile(@RequestBody Map<String, String> body) {
         User u = authService.updateCurrentUser(body.get("fullName"), body.get("avatarUrl"));
-        return ResponseEntity.ok(Map.of("message", "Profile updated", "fullName", u.getFullName(), "avatarUrl", u.getAvatarUrl()));
+        return ResponseEntity
+                .ok(Map.of("message", "Profile updated", "fullName", u.getFullName(), "avatarUrl", u.getAvatarUrl()));
     }
 
     // Sessions
