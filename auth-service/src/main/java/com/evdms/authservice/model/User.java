@@ -29,6 +29,8 @@ public class User {
     private UUID manufacturerId;
     private boolean isActive = true;
     private boolean emailVerified = false;
+    private String avatarUrl;
+    private Instant deletedAt;
     private Instant lastLogin;
     private int failedLoginAttempts;
     private Instant lockedUntil;
@@ -98,6 +100,22 @@ public class User {
 
     public void setEmailVerified(boolean emailVerified) {
         this.emailVerified = emailVerified;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public Instant getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(Instant deletedAt) {
+        this.deletedAt = deletedAt;
     }
 
     public UUID getDealerId() {

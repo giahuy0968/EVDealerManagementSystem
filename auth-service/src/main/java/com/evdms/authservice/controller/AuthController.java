@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import com.evdms.authservice.dto.*;
 import com.evdms.authservice.model.User;
 import com.evdms.authservice.service.AuthService;
+import com.evdms.authservice.security.TokenBlacklistService;
 
 import java.util.Map;
 import java.util.UUID;
@@ -16,6 +17,9 @@ import java.util.UUID;
 public class AuthController {
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private TokenBlacklistService tokenBlacklistService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
@@ -32,8 +36,13 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@Valid @RequestBody LogoutRequest request) {
+    public ResponseEntity<?> logout(@Valid @RequestBody LogoutRequest request, @RequestHeader(value = "Authorization", required = false) String authHeader) {
         authService.logout(request.getRefreshToken());
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            // blacklist access token for 15 minutes
+            tokenBlacklistService.blacklist(token, 15 * 60);
+        }
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
 
@@ -67,5 +76,61 @@ public class AuthController {
     @GetMapping("/test")
     public ResponseEntity<?> test() {
         return ResponseEntity.ok("Auth API is working!");
+    }
+
+    // Password management
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String token = authService.createPasswordResetToken(email);
+        // TODO: send email; return token only for dev convenience
+        return ResponseEntity.ok(Map.of("message", "Reset email sent", "token", token));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> body) {
+        authService.resetPassword(body.get("token"), body.get("newPassword"));
+        return ResponseEntity.ok(Map.of("message", "Password reset successfully"));
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> body) {
+        authService.changePassword(body.get("currentPassword"), body.get("newPassword"));
+        return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
+    }
+
+    // Profile
+    @GetMapping("/profile")
+    public ResponseEntity<?> profile() {
+        User user = authService.getCurrentUser();
+        return ResponseEntity.ok(Map.of(
+                "id", user.getId(),
+                "email", user.getEmail(),
+                "username", user.getUsername(),
+                "fullName", user.getFullName(),
+                "role", user.getRole() != null ? user.getRole().toString() : "USER",
+                "avatarUrl", user.getAvatarUrl()
+        ));
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(@RequestBody Map<String, String> body) {
+        User u = authService.updateCurrentUser(body.get("fullName"), body.get("avatarUrl"));
+        return ResponseEntity.ok(Map.of("message", "Profile updated", "fullName", u.getFullName(), "avatarUrl", u.getAvatarUrl()));
+    }
+
+    // Sessions
+    @GetMapping("/sessions")
+    public ResponseEntity<?> getSessions() {
+        User u = authService.getCurrentUser();
+        java.util.List<com.evdms.authservice.model.Session> sessions = authService.getUserSessions(u.getId());
+        return ResponseEntity.ok(sessions);
+    }
+
+    @DeleteMapping("/sessions/{id}")
+    public ResponseEntity<?> revokeSession(@PathVariable("id") String id) {
+        User u = authService.getCurrentUser();
+        authService.revokeSession(java.util.UUID.fromString(id), u.getId());
+        return ResponseEntity.ok(Map.of("message", "Session revoked"));
     }
 }

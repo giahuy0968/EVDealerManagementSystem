@@ -11,7 +11,10 @@ import com.evdms.authservice.repository.EmailVerificationTokenRepository;
 import com.evdms.authservice.repository.SessionRepository;
 import com.evdms.authservice.repository.UserRepository;
 import com.evdms.authservice.util.JwtUtil;
+import com.evdms.authservice.model.PasswordResetToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +40,12 @@ public class AuthService {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private com.evdms.authservice.security.RateLimiterService rateLimiterService;
+
+    @Autowired
+    private com.evdms.authservice.security.TokenBlacklistService tokenBlacklistService;
 
     public User register(RegisterRequest request) {
         // Check if user already exists
@@ -66,6 +75,11 @@ public class AuthService {
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
+        // Rate limit by IP (5 req / 15 min)
+        String key = "login:" + (request.getIpAddress() != null ? request.getIpAddress() : "unknown");
+        if (!rateLimiterService.allow(key)) {
+            throw new RuntimeException("Too many login attempts. Please try again later.");
+        }
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -164,6 +178,73 @@ public class AuthService {
         }
     }
 
+    // Profile endpoints
+    public User getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getName() == null) throw new RuntimeException("Unauthorized");
+        return userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public User updateCurrentUser(String fullName, String avatarUrl) {
+        User user = getCurrentUser();
+        if (fullName != null && !fullName.isBlank()) user.setFullName(fullName);
+        if (avatarUrl != null && !avatarUrl.isBlank()) user.setAvatarUrl(avatarUrl);
+        user.setUpdatedAt(Instant.now());
+        return userRepository.save(user);
+    }
+
+    // Password management
+    public void changePassword(String currentPassword, String newPassword) {
+        User user = getCurrentUser();
+        if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            throw new RuntimeException("Current password incorrect");
+        }
+        validatePasswordPolicy(newPassword);
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(Instant.now());
+        userRepository.save(user);
+        // revoke all sessions
+        sessionRepository.deleteByUserId(user.getId());
+    }
+
+    @Autowired
+    private com.evdms.authservice.repository.PasswordResetTokenRepository passwordResetTokenRepository;
+
+    public String createPasswordResetToken(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        PasswordResetToken token = new PasswordResetToken();
+        token.setUser(user);
+        token.setToken(UUID.randomUUID().toString());
+        token.setExpiresAt(Instant.now().plusSeconds(60 * 60)); // 1 hour
+        token.setCreatedAt(Instant.now());
+        passwordResetTokenRepository.save(token);
+        return token.getToken();
+    }
+
+    public void resetPassword(String tokenStr, String newPassword) {
+        PasswordResetToken prt = passwordResetTokenRepository.findByTokenAndUsedFalse(tokenStr)
+                .orElseThrow(() -> new RuntimeException("Invalid or used token"));
+        if (Instant.now().isAfter(prt.getExpiresAt())) {
+            throw new RuntimeException("Token expired");
+        }
+        User user = prt.getUser();
+        validatePasswordPolicy(newPassword);
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(Instant.now());
+        userRepository.save(user);
+        prt.setUsed(true);
+        passwordResetTokenRepository.save(prt);
+        // revoke all sessions
+        sessionRepository.deleteByUserId(user.getId());
+    }
+
+    private void validatePasswordPolicy(String password) {
+        // min 8, 1 uppercase, 1 number, 1 special
+        if (password == null || !password.matches("^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$")) {
+            throw new RuntimeException("Password does not meet complexity requirements");
+        }
+    }
+
     @Transactional
     public void verifyEmail(String token) {
         EmailVerificationToken verificationToken = emailVerificationTokenRepository.findByToken(token)
@@ -197,5 +278,18 @@ public class AuthService {
 
         // TODO: Send email with verification link
         // emailService.sendVerificationEmail(user.getEmail(), token);
+    }
+
+    // Sessions management
+    public java.util.List<Session> getUserSessions(UUID userId) {
+        return sessionRepository.findByUserId(userId);
+    }
+
+    public void revokeSession(UUID sessionId, UUID userId) {
+        Session s = sessionRepository.findById(sessionId).orElseThrow(() -> new RuntimeException("Session not found"));
+        if (!s.getUserId().equals(userId)) {
+            throw new RuntimeException("Forbidden");
+        }
+        sessionRepository.delete(s);
     }
 }
