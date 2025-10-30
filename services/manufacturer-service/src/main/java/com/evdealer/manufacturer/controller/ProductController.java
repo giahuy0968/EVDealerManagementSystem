@@ -4,7 +4,6 @@ import com.evdealer.manufacturer.model.dto.ProductRequest;
 import com.evdealer.manufacturer.model.dto.ProductResponse;
 import com.evdealer.manufacturer.service.ProductService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired; // Giữ lại import, nhưng nên dùng Constructor Injection
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +14,12 @@ import java.util.List;
 @RequestMapping("/api/v1/products")
 public class ProductController {
 
-    private final ProductService productService; // <--- SỬA ĐỔI: Dùng final
+    private final ProductService productService; 
 
-    // <--- SỬA ĐỔI: Constructor Injection
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
-    // Bỏ @Autowired trên field productService (nếu có)
+    
 
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest productRequest) {
@@ -55,8 +53,8 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-    // <--- SỬA ĐỔI: Thay thế DELETE bằng PATCH để làm rõ Soft Delete
-    @PatchMapping("/{id}/discontinue") // Đổi từ DELETE /{id} thành PATCH /{id}/discontinue
+   
+    @PatchMapping("/{id}/discontinue") 
     public ResponseEntity<Void> discontinueProduct(@PathVariable Long id) {
         productService.discontinueProduct(id);
         return ResponseEntity.noContent().build();
