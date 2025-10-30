@@ -100,27 +100,23 @@ services:
       - evdms-network
 
   customer-service:
-    build: ./services/customer-service
+    build: ./customer-service
     ports:
       - "3003:3003"
     environment:
-      NODE_ENV: development
       PORT: 3003
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: evdms
-      DB_USER: evdms_user
-      DB_PASSWORD: evdms_password
-      MONGO_URL: mongodb://evdms_user:evdms_password@mongo:27017/evdms
-      REDIS_URL: redis://redis:6379
-      RABBITMQ_URL: amqp://evdms_user:evdms_password@rabbitmq:5672
-      AUTH_SERVICE_URL: http://auth-service:3001
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/evdms
+      SPRING_DATASOURCE_USERNAME: evdms_user
+      SPRING_DATASOURCE_PASSWORD: evdms_password
+      JPA_DDL_AUTO: update
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: evdms_user
+      RABBITMQ_PASSWORD: evdms_password
+      JWT_SECRET: your-jwt-secret-key
     depends_on:
       - postgres
-      - mongo
-      - redis
       - rabbitmq
-      - auth-service
     networks:
       - evdms-network
 
