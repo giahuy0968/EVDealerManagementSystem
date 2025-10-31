@@ -9,19 +9,19 @@ import java.time.LocalDateTime;
 @Data
 @Document(collection = "inventory_snapshots")
 public class InventorySnapshot {
-    @Id
-    private String id;
- 
-    private LocalDate date;
-    private String dealerId;
-    private String modelId;
-    private Integer quantity;
-    private Double value;
-    private Double daysInStockAvg;
-    private Double turnoverRate;
-    private LocalDateTime createdAt;
- 
-    public InventorySnapshot() {
-        this.createdAt = LocalDateTime.now();
-    }
+    @Id
+    private String id;
+
+    private LocalDate date;
+    private String dealerId;
+    private String modelId;
+    private Integer quantity;
+    private Double value;
+    private Double daysInStockAvg;
+    private Double turnoverRate;
+    private LocalDateTime createdAt;
+
+    public InventorySnapshot() {
+        this.createdAt = LocalDateTime.now();
+    }
 }

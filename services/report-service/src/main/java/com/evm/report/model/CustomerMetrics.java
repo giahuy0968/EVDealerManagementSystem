@@ -9,19 +9,19 @@ import java.time.LocalDateTime;
 @Data
 @Document(collection = "customer_metrics")
 public class CustomerMetrics {
-    @Id
-    private String id;
- 
-    private LocalDate date;
-    private String dealerId;
-    private Integer newCustomers;
-    private Integer returningCustomers;
-    private Integer testDrives;
-    private Double conversionRate;
-    private Double avgOrderValue;
-    private LocalDateTime createdAt;
- 
-    public CustomerMetrics() {
-        this.createdAt = LocalDateTime.now();
-    }
+    @Id
+    private String id;
+
+    private LocalDate date;
+    private String dealerId;
+    private Integer newCustomers;
+    private Integer returningCustomers;
+    private Integer testDrives;
+    private Double conversionRate;
+    private Double avgOrderValue;
+    private LocalDateTime createdAt;
+
+    public CustomerMetrics() {
+        this.createdAt = LocalDateTime.now();
+    }
 }

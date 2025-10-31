@@ -9,10 +9,10 @@ import java.util.Optional;
 
 @Repository
 public interface InventorySnapshotRepository extends MongoRepository<InventorySnapshot, String> {
- 
-    List<InventorySnapshot> findByDealerIdAndDateBetween(String dealerId, LocalDate start, LocalDate end);
- 
-    Optional<InventorySnapshot> findByDealerIdAndModelIdAndDate(String dealerId, String modelId, LocalDate date);
- 
-    List<InventorySnapshot> findByDate(LocalDate date);
+
+    List<InventorySnapshot> findByDealerIdAndDateBetween(String dealerId, LocalDate start, LocalDate end);
+
+    Optional<InventorySnapshot> findByDealerIdAndModelIdAndDate(String dealerId, String modelId, LocalDate date);
+
+    List<InventorySnapshot> findByDate(LocalDate date);
 }

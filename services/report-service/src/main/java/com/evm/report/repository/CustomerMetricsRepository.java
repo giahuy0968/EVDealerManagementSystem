@@ -8,8 +8,8 @@ import java.util.List;
 
 @Repository
 public interface CustomerMetricsRepository extends MongoRepository<CustomerMetrics, String> {
- 
-    List<CustomerMetrics> findByDealerIdAndDateBetween(String dealerId, LocalDate start, LocalDate end);
- 
-    CustomerMetrics findByDealerIdAndDate(String dealerId, LocalDate date);
+
+    List<CustomerMetrics> findByDealerIdAndDateBetween(String dealerId, LocalDate start, LocalDate end);
+
+    CustomerMetrics findByDealerIdAndDate(String dealerId, LocalDate date);
 }

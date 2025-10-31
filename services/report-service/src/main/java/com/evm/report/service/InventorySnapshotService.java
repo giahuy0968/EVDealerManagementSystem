@@ -12,47 +12,47 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class InventorySnapshotService {
- 
-    private final InventorySnapshotRepository inventorySnapshotRepository;
- 
-    public void updateInventoryMetrics(String dealerId, String modelId,
-                                     Integer quantity, Double value) {
-        LocalDate today = LocalDate.now();
- 
-        Optional<InventorySnapshot> existingSnapshot = inventorySnapshotRepository
-            .findByDealerIdAndModelIdAndDate(dealerId, modelId, today);
- 
-        InventorySnapshot snapshot;
-        if (existingSnapshot.isPresent()) {
-            snapshot = existingSnapshot.get();
-            snapshot.setQuantity(quantity);
-            snapshot.setValue(value);
-        } else {
-            snapshot = new InventorySnapshot();
-            snapshot.setDate(today);
-            snapshot.setDealerId(dealerId);
-            snapshot.setModelId(modelId);
-            snapshot.setQuantity(quantity);
-            snapshot.setValue(value);
-        }
- 
-        // Tính toán metrics
-        snapshot.setDaysInStockAvg(calculateDaysInStock(dealerId, modelId));
-        snapshot.setTurnoverRate(calculateTurnoverRate(dealerId, modelId));
- 
-        inventorySnapshotRepository.save(snapshot);
-        log.info("Inventory metrics updated for dealer: {}, model: {}", dealerId, modelId);
-    }
- 
-    private Double calculateDaysInStock(String dealerId, String modelId) {
-        // Logic tính trung bình ngày tồn kho
-        // Placeholder - thực tế cần query historical data
-        return 15.5;
-    }
- 
-    private Double calculateTurnoverRate(String dealerId, String modelId) {
-        // Logic tính vòng quay kho
-        // Placeholder - thực tế cần tính từ sales data
-        return 2.1;
-    }
+
+    private final InventorySnapshotRepository inventorySnapshotRepository;
+
+    public void updateInventoryMetrics(String dealerId, String modelId,
+                                    Integer quantity, Double value) {
+        LocalDate today = LocalDate.now();
+
+        Optional<InventorySnapshot> existingSnapshot = inventorySnapshotRepository
+            .findByDealerIdAndModelIdAndDate(dealerId, modelId, today);
+
+        InventorySnapshot snapshot;
+        if (existingSnapshot.isPresent()) {
+            snapshot = existingSnapshot.get();
+            snapshot.setQuantity(quantity);
+            snapshot.setValue(value);
+        } else {
+            snapshot = new InventorySnapshot();
+            snapshot.setDate(today);
+            snapshot.setDealerId(dealerId);
+            snapshot.setModelId(modelId);
+            snapshot.setQuantity(quantity);
+            snapshot.setValue(value);
+        }
+
+        // Calculate metrics
+        snapshot.setDaysInStockAvg(calculateDaysInStock(dealerId, modelId));
+        snapshot.setTurnoverRate(calculateTurnoverRate(dealerId, modelId));
+
+        inventorySnapshotRepository.save(snapshot);
+        log.info("Inventory metrics updated for dealer: {}, model: {}", dealerId, modelId);
+    }
+
+    private Double calculateDaysInStock(String dealerId, String modelId) {
+        // Logic to calculate average days in stock
+        // Placeholder - in reality need to query historical data
+        return 15.5;
+    }
+
+    private Double calculateTurnoverRate(String dealerId, String modelId) {
+        // Logic to calculate inventory turnover rate
+        // Placeholder - in reality need to calculate from sales data
+        return 2.1;
+    }
 }
