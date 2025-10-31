@@ -1,4 +1,4 @@
-package com.evdms.customerservice.dto;
+package com.evdms.customerservice.service;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,9 +1,9 @@
 package com.evdms.customerservice.service;
 
-import com.evdms.customerservice.domain.entity.Lead;
-import com.evdms.customerservice.domain.entity.TestDrive;
-import com.evdms.customerservice.domain.enums.LeadStatus;
-import com.evdms.customerservice.messaging.EventPublisher;
+import com.evdms.customerservice.entity.Lead;
+import com.evdms.customerservice.entity.TestDrive;
+import com.evdms.customerservice.entity.enums.LeadStatus;
+import com.evdms.customerservice.service.EventPublisher;
 import com.evdms.customerservice.repository.LeadRepository;
 import com.evdms.customerservice.repository.TestDriveRepository;
 import org.slf4j.Logger;

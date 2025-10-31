@@ -1,8 +1,8 @@
 package com.evdms.customerservice.controller;
 
-import com.evdms.customerservice.domain.entity.Customer;
-import com.evdms.customerservice.domain.entity.Lead;
-import com.evdms.customerservice.domain.enums.LeadStatus;
+import com.evdms.customerservice.entity.Customer;
+import com.evdms.customerservice.entity.Lead;
+import com.evdms.customerservice.entity.enums.LeadStatus;
 import com.evdms.customerservice.service.LeadService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;

@@ -1,6 +1,6 @@
 package com.evdms.customerservice.config;
 
-import com.evdms.customerservice.security.JwtAuthenticationFilter;
+import com.evdms.customerservice.service.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

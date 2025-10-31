@@ -1,6 +1,6 @@
-package com.evdms.customerservice.util;
+package com.evdms.customerservice.service;
 
-import com.evdms.customerservice.security.JwtAuthentication;
+import com.evdms.customerservice.service.JwtAuthentication;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 

@@ -1,9 +1,9 @@
 package com.evdms.customerservice.service;
 
-import com.evdms.customerservice.domain.entity.Customer;
-import com.evdms.customerservice.domain.entity.Lead;
-import com.evdms.customerservice.domain.enums.LeadStatus;
-import com.evdms.customerservice.messaging.EventPublisher;
+import com.evdms.customerservice.entity.Customer;
+import com.evdms.customerservice.entity.Lead;
+import com.evdms.customerservice.entity.enums.LeadStatus;
+import com.evdms.customerservice.service.EventPublisher;
 import com.evdms.customerservice.repository.CustomerRepository;
 import com.evdms.customerservice.repository.LeadRepository;
 import jakarta.persistence.EntityNotFoundException;

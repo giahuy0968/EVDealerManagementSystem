@@ -1,8 +1,8 @@
 package com.evdms.customerservice.service;
 
-import com.evdms.customerservice.domain.entity.Complaint;
-import com.evdms.customerservice.domain.enums.ComplaintStatus;
-import com.evdms.customerservice.messaging.EventPublisher;
+import com.evdms.customerservice.entity.Complaint;
+import com.evdms.customerservice.entity.enums.ComplaintStatus;
+import com.evdms.customerservice.service.EventPublisher;
 import com.evdms.customerservice.repository.ComplaintRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;

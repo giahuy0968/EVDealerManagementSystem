@@ -1,7 +1,7 @@
 package com.evdms.customerservice.repository;
 
-import com.evdms.customerservice.domain.entity.TestDrive;
-import com.evdms.customerservice.domain.enums.TestDriveStatus;
+import com.evdms.customerservice.entity.TestDrive;
+import com.evdms.customerservice.entity.enums.TestDriveStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;

@@ -1,4 +1,4 @@
-package com.evdms.customerservice.messaging;
+package com.evdms.customerservice.service;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;

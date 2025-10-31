@@ -1,6 +1,6 @@
-package com.evdms.customerservice.domain.entity;
+package com.evdms.customerservice.entity;
 
-import com.evdms.customerservice.domain.enums.LeadStatus;
+import com.evdms.customerservice.entity.enums.LeadStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

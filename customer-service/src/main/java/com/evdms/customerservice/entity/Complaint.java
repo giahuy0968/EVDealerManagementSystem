@@ -1,7 +1,7 @@
-package com.evdms.customerservice.domain.entity;
+package com.evdms.customerservice.entity;
 
-import com.evdms.customerservice.domain.enums.ComplaintPriority;
-import com.evdms.customerservice.domain.enums.ComplaintStatus;
+import com.evdms.customerservice.entity.enums.ComplaintPriority;
+import com.evdms.customerservice.entity.enums.ComplaintStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

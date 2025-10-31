@@ -1,6 +1,6 @@
-package com.evdms.customerservice.exception;
+package com.evdms.customerservice.service;
 
-import com.evdms.customerservice.dto.ErrorResponse;
+import com.evdms.customerservice.service.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;

@@ -1,7 +1,7 @@
 package com.evdms.customerservice.repository;
 
-import com.evdms.customerservice.domain.entity.Customer;
-import com.evdms.customerservice.domain.enums.CustomerStatus;
+import com.evdms.customerservice.entity.Customer;
+import com.evdms.customerservice.entity.enums.CustomerStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

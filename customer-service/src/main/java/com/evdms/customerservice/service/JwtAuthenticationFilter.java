@@ -1,6 +1,6 @@
-package com.evdms.customerservice.security;
+package com.evdms.customerservice.service;
 
-import com.evdms.customerservice.util.JwtUtil;
+import com.evdms.customerservice.service.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

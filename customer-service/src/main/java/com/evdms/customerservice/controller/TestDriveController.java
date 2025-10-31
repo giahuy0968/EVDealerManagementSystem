@@ -1,7 +1,7 @@
 package com.evdms.customerservice.controller;
 
-import com.evdms.customerservice.domain.entity.TestDrive;
-import com.evdms.customerservice.domain.enums.TestDriveStatus;
+import com.evdms.customerservice.entity.TestDrive;
+import com.evdms.customerservice.entity.enums.TestDriveStatus;
 import com.evdms.customerservice.service.TestDriveService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

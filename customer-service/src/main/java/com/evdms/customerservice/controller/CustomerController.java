@@ -1,10 +1,10 @@
 package com.evdms.customerservice.controller;
 
-import com.evdms.customerservice.domain.entity.Customer;
-import com.evdms.customerservice.domain.entity.CustomerInteraction;
-import com.evdms.customerservice.domain.enums.CustomerStatus;
+import com.evdms.customerservice.entity.Customer;
+import com.evdms.customerservice.entity.CustomerInteraction;
+import com.evdms.customerservice.entity.enums.CustomerStatus;
 import com.evdms.customerservice.service.CustomerService;
-import com.evdms.customerservice.util.AuthUtil;
+import com.evdms.customerservice.service.AuthUtil;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;

@@ -1,10 +1,10 @@
 package com.evdms.customerservice.service;
 
-import com.evdms.customerservice.domain.entity.Customer;
-import com.evdms.customerservice.domain.entity.CustomerInteraction;
-import com.evdms.customerservice.domain.enums.CustomerStatus;
-import com.evdms.customerservice.domain.enums.InteractionType;
-import com.evdms.customerservice.messaging.EventPublisher;
+import com.evdms.customerservice.entity.Customer;
+import com.evdms.customerservice.entity.CustomerInteraction;
+import com.evdms.customerservice.entity.enums.CustomerStatus;
+import com.evdms.customerservice.entity.enums.InteractionType;
+import com.evdms.customerservice.service.EventPublisher;
 import com.evdms.customerservice.repository.CustomerInteractionRepository;
 import com.evdms.customerservice.repository.CustomerRepository;
 import jakarta.persistence.EntityNotFoundException;

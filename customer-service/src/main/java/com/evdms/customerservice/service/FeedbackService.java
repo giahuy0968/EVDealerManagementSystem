@@ -1,7 +1,7 @@
 package com.evdms.customerservice.service;
 
-import com.evdms.customerservice.domain.entity.Feedback;
-import com.evdms.customerservice.messaging.EventPublisher;
+import com.evdms.customerservice.entity.Feedback;
+import com.evdms.customerservice.service.EventPublisher;
 import com.evdms.customerservice.repository.FeedbackRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;

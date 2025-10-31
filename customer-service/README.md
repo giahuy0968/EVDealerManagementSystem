@@ -1,6 +1,43 @@
 # Customer Service
 
-Customer management microservice for EV Dealer Management System.
+# Customer Service - Structure Documentation
+
+## 📁 Simplified Folder Structure
+
+```
+customer-service/
+├── src/main/java/com/evdms/customerservice/
+│   ├── controller/          # REST API Controllers
+│   ├── service/             # Business Logic & Utilities
+│   ├── repository/          # Data Access Layer
+│   ├── entity/              # Domain Models & Enums
+│   ├── config/              # Configuration Classes
+│   └── CustomerServiceApplication.java
+│
+└── src/main/resources/
+    ├── application.properties
+    └── db/migration/        # Flyway Database Migrations
+```
+
+## 📦 Package Organization
+
+### 1. **controller/** - REST API Endpoints
+All REST controllers with role-based access control
+
+### 2. **service/** - Business Logic Layer
+Core services, event publishers, JWT utilities, exception handlers, DTOs
+
+### 3. **repository/** - Data Access Layer
+Spring Data JPA repositories with custom queries
+
+### 4. **entity/** - Domain Models
+JPA entities and enums
+
+### 5. **config/** - Application Configuration
+Database, RabbitMQ, and Security configurations
+
+### 6. **resources/db/migration/** - Database Schema
+Flyway migration scripts (V1-V6)
 
 ## Features
 

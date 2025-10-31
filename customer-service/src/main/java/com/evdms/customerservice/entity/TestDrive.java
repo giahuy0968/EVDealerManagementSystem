@@ -1,6 +1,6 @@
-package com.evdms.customerservice.domain.entity;
+package com.evdms.customerservice.entity;
 
-import com.evdms.customerservice.domain.enums.TestDriveStatus;
+import com.evdms.customerservice.entity.enums.TestDriveStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

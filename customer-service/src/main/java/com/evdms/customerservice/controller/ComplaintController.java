@@ -1,6 +1,6 @@
 package com.evdms.customerservice.controller;
 
-import com.evdms.customerservice.domain.entity.Complaint;
+import com.evdms.customerservice.entity.Complaint;
 import com.evdms.customerservice.service.ComplaintService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

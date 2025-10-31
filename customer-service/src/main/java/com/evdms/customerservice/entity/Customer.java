@@ -1,6 +1,6 @@
-package com.evdms.customerservice.domain.entity;
+package com.evdms.customerservice.entity;
 
-import com.evdms.customerservice.domain.enums.*;
+import com.evdms.customerservice.entity.enums.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;

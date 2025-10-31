@@ -1,8 +1,8 @@
 package com.evdms.customerservice.service;
 
-import com.evdms.customerservice.domain.entity.TestDrive;
-import com.evdms.customerservice.domain.enums.TestDriveStatus;
-import com.evdms.customerservice.messaging.EventPublisher;
+import com.evdms.customerservice.entity.TestDrive;
+import com.evdms.customerservice.entity.enums.TestDriveStatus;
+import com.evdms.customerservice.service.EventPublisher;
 import com.evdms.customerservice.repository.TestDriveRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.evdms.customerservice.security;
+package com.evdms.customerservice.service;
 
 import io.jsonwebtoken.Claims;
 import lombok.Getter;

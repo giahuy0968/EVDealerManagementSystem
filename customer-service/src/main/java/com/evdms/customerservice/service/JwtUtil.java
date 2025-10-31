@@ -1,4 +1,4 @@
-package com.evdms.customerservice.util;
+package com.evdms.customerservice.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
