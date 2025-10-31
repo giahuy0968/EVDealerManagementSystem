@@ -1,4 +1,4 @@
-package com.evdms.authservice.dto;
+package com.evdms.authservice.service;
 
 import jakarta.validation.constraints.NotBlank;
 

@@ -1,17 +1,17 @@
 package com.evdms.authservice.service;
 
-import com.evdms.authservice.dto.AuthResponse;
-import com.evdms.authservice.dto.LoginRequest;
-import com.evdms.authservice.dto.RegisterRequest;
-import com.evdms.authservice.dto.TokenResponse;
-import com.evdms.authservice.model.EmailVerificationToken;
-import com.evdms.authservice.model.Session;
-import com.evdms.authservice.model.User;
+import com.evdms.authservice.service.AuthResponse;
+import com.evdms.authservice.service.LoginRequest;
+import com.evdms.authservice.service.RegisterRequest;
+import com.evdms.authservice.service.TokenResponse;
+import com.evdms.authservice.entity.EmailVerificationToken;
+import com.evdms.authservice.entity.Session;
+import com.evdms.authservice.entity.User;
 import com.evdms.authservice.repository.EmailVerificationTokenRepository;
 import com.evdms.authservice.repository.SessionRepository;
 import com.evdms.authservice.repository.UserRepository;
-import com.evdms.authservice.util.JwtUtil;
-import com.evdms.authservice.model.PasswordResetToken;
+import com.evdms.authservice.service.JwtUtil;
+import com.evdms.authservice.entity.PasswordResetToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,10 +42,10 @@ public class AuthService {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private com.evdms.authservice.security.RateLimiterService rateLimiterService;
+    private RateLimiterService rateLimiterService;
 
     @Autowired
-    private com.evdms.authservice.security.TokenBlacklistService tokenBlacklistService;
+    private TokenBlacklistService tokenBlacklistService;
 
     public User register(RegisterRequest request) {
         // Check if user already exists

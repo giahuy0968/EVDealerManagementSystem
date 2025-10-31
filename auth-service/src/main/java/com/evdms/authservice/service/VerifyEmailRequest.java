@@ -1,15 +1,15 @@
-package com.evdms.authservice.dto;
+package com.evdms.authservice.service;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class VerifyTokenRequest {
-    @NotBlank(message = "Token is required")
+public class VerifyEmailRequest {
+    @NotBlank(message = "Verification token is required")
     private String token;
 
-    public VerifyTokenRequest() {
+    public VerifyEmailRequest() {
     }
 
-    public VerifyTokenRequest(String token) {
+    public VerifyEmailRequest(String token) {
         this.token = token;
     }
 

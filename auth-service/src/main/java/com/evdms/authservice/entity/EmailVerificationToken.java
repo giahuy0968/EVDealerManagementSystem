@@ -1,4 +1,4 @@
-package com.evdms.authservice.model;
+package com.evdms.authservice.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

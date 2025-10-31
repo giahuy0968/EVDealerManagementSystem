@@ -1,4 +1,4 @@
-package com.evdms.authservice.util;
+package com.evdms.authservice.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

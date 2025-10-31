@@ -1,4 +1,4 @@
-package com.evdms.authservice.security;
+package com.evdms.authservice.service;
 
 import org.springframework.stereotype.Service;
 

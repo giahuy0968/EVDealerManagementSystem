@@ -1,6 +1,6 @@
 package com.evdms.authservice.repository;
 
-import com.evdms.authservice.model.PasswordResetToken;
+import com.evdms.authservice.entity.PasswordResetToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -4,10 +4,10 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.evdms.authservice.dto.*;
-import com.evdms.authservice.model.User;
+import com.evdms.authservice.service.*;
+import com.evdms.authservice.entity.User;
 import com.evdms.authservice.service.AuthService;
-import com.evdms.authservice.security.TokenBlacklistService;
+import com.evdms.authservice.service.TokenBlacklistService;
 
 import java.util.Map;
 import java.util.UUID;
@@ -124,7 +124,7 @@ public class AuthController {
     @GetMapping("/sessions")
     public ResponseEntity<?> getSessions() {
         User u = authService.getCurrentUser();
-        java.util.List<com.evdms.authservice.model.Session> sessions = authService.getUserSessions(u.getId());
+        java.util.List<com.evdms.authservice.entity.Session> sessions = authService.getUserSessions(u.getId());
         return ResponseEntity.ok(sessions);
     }
 

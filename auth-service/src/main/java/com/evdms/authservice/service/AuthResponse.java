@@ -1,4 +1,4 @@
-package com.evdms.authservice.dto;
+package com.evdms.authservice.service;
 
 public class AuthResponse {
     private String token;

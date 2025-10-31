@@ -1,6 +1,6 @@
 package com.evdms.authservice.repository;
 
-import com.evdms.authservice.model.User;
+import com.evdms.authservice.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

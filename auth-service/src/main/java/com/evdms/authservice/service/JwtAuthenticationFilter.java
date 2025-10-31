@@ -1,6 +1,6 @@
-package com.evdms.authservice.security;
+package com.evdms.authservice.service;
 
-import com.evdms.authservice.util.JwtUtil;
+import com.evdms.authservice.service.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

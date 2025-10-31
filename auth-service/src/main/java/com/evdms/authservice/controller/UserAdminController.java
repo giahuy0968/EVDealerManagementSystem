@@ -1,6 +1,6 @@
 package com.evdms.authservice.controller;
 
-import com.evdms.authservice.model.User;
+import com.evdms.authservice.entity.User;
 import com.evdms.authservice.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

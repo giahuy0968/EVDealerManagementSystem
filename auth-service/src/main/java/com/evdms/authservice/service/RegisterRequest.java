@@ -1,10 +1,14 @@
-package com.evdms.authservice.dto;
+package com.evdms.authservice.service;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class LoginRequest {
+public class RegisterRequest {
+    @NotBlank
+    @Size(min = 4, max = 32)
+    private String username;
+
     @NotBlank
     @Email
     private String email;
@@ -13,7 +17,16 @@ public class LoginRequest {
     @Size(min = 8)
     private String password;
 
-    private String ipAddress;
+    @NotBlank
+    private String fullName;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public String getEmail() {
         return email;
@@ -31,11 +44,11 @@ public class LoginRequest {
         this.password = password;
     }
 
-    public String getIpAddress() {
-        return ipAddress;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 }
