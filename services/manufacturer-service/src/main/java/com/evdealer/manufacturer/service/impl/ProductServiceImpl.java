@@ -8,6 +8,8 @@ import com.evdealer.manufacturer.repository.ProductRepository;
 import com.evdealer.manufacturer.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired; // Giữ lại import, nhưng không dùng
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +51,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "products", key = "#id")
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
@@ -65,6 +68,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "activeProducts")
     public List<ProductResponse> getActiveProducts() {
         return productRepository.findByStatus(Product.ProductStatus.ACTIVE).stream()
                 .map(ProductResponse::new)
@@ -72,14 +76,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(value = {"products", "activeProducts"}, key = "#id")
     public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         // Logic kiểm tra trùng lặp (Giữ nguyên)
         productRepository.findByModelNameAndVersionAndColor(
-            productRequest.getModelName(), 
-            productRequest.getVersion(), 
+            productRequest.getModelName(),
+            productRequest.getVersion(),
             productRequest.getColor())
             .ifPresent(existingProduct -> {
                 if (!existingProduct.getId().equals(id)) {
@@ -99,15 +104,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(value = {"products", "activeProducts"}, key = "#id")
     public void discontinueProduct(Long id) { // <--- SỬA ĐỔI: Triển khai phương thức đổi tên
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
-        
+
         product.setStatus(Product.ProductStatus.DISCONTINUED);
         productRepository.save(product);
     }
 
     @Override
+    @CacheEvict(value = {"products", "activeProducts"}, key = "#id")
     public ProductResponse updateInventory(Long id, Integer newInventory) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
