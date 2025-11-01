@@ -2,12 +2,14 @@ package com.evdealer.manufacturer.service;
 
 import com.evdealer.manufacturer.model.dto.ProductRequest;
 import com.evdealer.manufacturer.model.dto.ProductResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ProductService {
     ProductResponse createProduct(ProductRequest productRequest);
     ProductResponse getProductById(Long id);
-    List<ProductResponse> getAllProducts();
+    Page<ProductResponse> getAllProducts(Pageable pageable);
     List<ProductResponse> getActiveProducts();
     ProductResponse updateProduct(Long id, ProductRequest productRequest);
     void discontinueProduct(Long id); // <--- SỬA ĐỔI: Đổi tên thành discontinueProduct
