@@ -131,8 +131,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductResponse> searchProducts(String keyword) {
-        return productRepository.findByModelNameContainingIgnoreCase(keyword).stream()
+    public List<ProductResponse> searchProducts(String keyword, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, Product.ProductStatus status) {
+        return productRepository.findAdvancedSearch(keyword, minPrice, maxPrice, status).stream()
                 .map(ProductResponse::new)
                 .collect(Collectors.toList());
     }

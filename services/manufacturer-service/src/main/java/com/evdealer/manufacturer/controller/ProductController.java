@@ -81,8 +81,20 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ProductResponse>> searchProducts(@RequestParam String keyword) {
-        List<ProductResponse> products = productService.searchProducts(keyword);
+    public ResponseEntity<List<ProductResponse>> searchProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) java.math.BigDecimal minPrice,
+            @RequestParam(required = false) java.math.BigDecimal maxPrice,
+            @RequestParam(required = false) String status) {
+        com.evdealer.manufacturer.model.entity.Product.ProductStatus productStatus = null;
+        if (status != null) {
+            try {
+                productStatus = com.evdealer.manufacturer.model.entity.Product.ProductStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // Invalid status, ignore or handle
+            }
+        }
+        List<ProductResponse> products = productService.searchProducts(keyword, minPrice, maxPrice, productStatus);
         return ResponseEntity.ok(products);
     }
 }
