@@ -1,35 +1,46 @@
-# Stage 1: Build stage
-FROM maven:3.9-openjdk-21-slim AS build
+# ==================================
+# STAGE 1: Build stage với Maven
+# ==================================
+FROM maven:3.9.6-eclipse-temurin-21 AS build
+
 WORKDIR /app
 
-# Copy pom.xml and download dependencies
+# Copy pom.xml và download dependencies trước (tận dụng Docker cache)
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
-# Copy source code and build
+# Copy source code và build
 COPY src ./src
 RUN mvn clean package -DskipTests -B
 
-# Stage 2: Runtime stage
-FROM eclipse-temurin:21-jre-alpine AS runtime
+# ==================================
+# STAGE 2: Runtime stage với JRE
+# ==================================
+FROM eclipse-temurin:21-jre-jammy
+
 WORKDIR /app
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S appuser && \
-    adduser -u 1001 -S appuser -G appuser
+# Tạo user non-root để chạy ứng dụng (bảo mật)
+RUN groupadd -r customerservice && useradd -r -g customerservice customerservice
 
-# Copy the built JAR from build stage
+# Copy JAR file từ build stage
 COPY --from=build /app/target/*.jar app.jar
-RUN chown appuser:appuser app.jar
 
-USER appuser
+# Đổi quyền sở hữu
+RUN chown -R customerservice:customerservice /app
+
+# Chuyển sang user non-root
+USER customerservice
 
 # Expose port
 EXPOSE 3003
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3003/actuator/health || exit 1
+# Health check (Spring Actuator)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:3003/actuator/health || exit 1
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# JVM options để tối ưu container
+ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+
+# Start application
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
