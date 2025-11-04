@@ -1,4 +1,4 @@
-import amqplib from "amqplib";
+import * as amqplib from "amqplib";
 import logger from "../utils/logger";
 
 let connection: amqplib.Connection | null = null;
@@ -7,7 +7,7 @@ let channel: amqplib.Channel | null = null;
 export async function initRabbitMQ() {
   const url = process.env.RABBITMQ_URL || "amqp://localhost";
   const conn = await amqplib.connect(url);
-  connection = conn as amqplib.Connection;
+  connection = conn as unknown as amqplib.Connection;
   const ch = await connection.createChannel();
   channel = ch as amqplib.Channel;
 
