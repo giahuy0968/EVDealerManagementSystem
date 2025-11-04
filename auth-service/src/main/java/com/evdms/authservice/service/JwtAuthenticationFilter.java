@@ -5,6 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,6 +21,7 @@ import java.util.List;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final JwtUtil jwtUtil;
     private final TokenBlacklistService tokenBlacklistService;
 
@@ -36,19 +39,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 // Check blacklist
                 if (tokenBlacklistService.isBlacklisted(token)) {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    logger.warn("Token is blacklisted, clearing security context for: {}", request.getRequestURI());
+                    SecurityContextHolder.clearContext();
+                    filterChain.doFilter(request, response);
                     return;
                 }
+
+                // Validate token before extracting claims
+                if (jwtUtil.isTokenExpired(token)) {
+                    logger.warn("Token expired for: {}", request.getRequestURI());
+                    SecurityContextHolder.clearContext();
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
                 String email = jwtUtil.extractEmail(token);
                 String role = (String) jwtUtil.extractClaims(token).get("role");
-                List<SimpleGrantedAuthority> authorities = role != null
-                        ? List.of(new SimpleGrantedAuthority("ROLE_" + role))
-                        : Collections.emptyList();
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email,
-                        null, authorities);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            } catch (Exception ignored) {
-                // Invalid token -> proceed without authentication; secured endpoints will block
+
+                if (email != null && !email.isBlank()) {
+                    List<SimpleGrantedAuthority> authorities = role != null
+                            ? List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                            : Collections.emptyList();
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            email, null, authorities);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    logger.debug("Authenticated user: {} with role: {}", email, role);
+                } else {
+                    logger.warn("Email extracted from token is null or empty");
+                }
+            } catch (Exception e) {
+                logger.error("JWT authentication failed: {} for URI: {}", e.getMessage(), request.getRequestURI());
+                SecurityContextHolder.clearContext();
             }
         }
         filterChain.doFilter(request, response);

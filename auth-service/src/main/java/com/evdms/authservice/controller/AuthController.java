@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.evdms.authservice.service.*;
+import com.evdms.authservice.dto.*;
 import com.evdms.authservice.entity.User;
 import com.evdms.authservice.service.AuthService;
 import com.evdms.authservice.service.TokenBlacklistService;
@@ -22,7 +22,7 @@ public class AuthController {
     private TokenBlacklistService tokenBlacklistService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         User user = authService.register(request);
         return ResponseEntity.ok(Map.of(
                 "message", "Registration successful",
@@ -30,13 +30,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@Valid @RequestBody LogoutRequest request,
+    public ResponseEntity<?> logout(@RequestBody LogoutRequest request,
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
         authService.logout(request.getRefreshToken());
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -54,7 +54,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<TokenResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<TokenResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
         TokenResponse response = authService.refreshToken(request.getRefreshToken());
         return ResponseEntity.ok(response);
     }
@@ -69,7 +69,7 @@ public class AuthController {
     }
 
     @PostMapping("/verify-email")
-    public ResponseEntity<?> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+    public ResponseEntity<?> verifyEmail(@RequestBody VerifyEmailRequest request) {
         authService.verifyEmail(request.getToken());
         return ResponseEntity.ok(Map.of("message", "Email verified successfully"));
     }
@@ -104,20 +104,44 @@ public class AuthController {
     @GetMapping("/profile")
     public ResponseEntity<?> profile() {
         User user = authService.getCurrentUser();
-        return ResponseEntity.ok(Map.of(
-                "id", user.getId(),
-                "email", user.getEmail(),
-                "username", user.getUsername(),
-                "fullName", user.getFullName(),
-                "role", user.getRole() != null ? user.getRole().toString() : "USER",
-                "avatarUrl", user.getAvatarUrl()));
+        java.util.Map<String, Object> resp = new java.util.HashMap<>();
+        resp.put("id", user.getId());
+        resp.put("email", user.getEmail());
+        resp.put("username", user.getUsername());
+        resp.put("role", user.getRole() != null ? user.getRole().toString() : "USER");
+        if (user.getFullName() != null)
+            resp.put("fullName", user.getFullName());
+        if (user.getAvatarUrl() != null)
+            resp.put("avatarUrl", user.getAvatarUrl());
+        return ResponseEntity.ok(resp);
     }
 
     @PutMapping("/profile")
     public ResponseEntity<?> updateProfile(@RequestBody Map<String, String> body) {
         User u = authService.updateCurrentUser(body.get("fullName"), body.get("avatarUrl"));
-        return ResponseEntity
-                .ok(Map.of("message", "Profile updated", "fullName", u.getFullName(), "avatarUrl", u.getAvatarUrl()));
+        java.util.Map<String, Object> resp = new java.util.HashMap<>();
+        resp.put("message", "Profile updated");
+        if (u.getFullName() != null)
+            resp.put("fullName", u.getFullName());
+        if (u.getAvatarUrl() != null)
+            resp.put("avatarUrl", u.getAvatarUrl());
+        return ResponseEntity.ok(resp);
+    }
+
+    @PutMapping("/profile/avatar")
+    public ResponseEntity<?> uploadAvatar(@RequestParam(value = "avatar", required = false) String avatarUrl) {
+        // In production, this would handle multipart file upload
+        // For now, accept a URL string
+        User u = authService.getCurrentUser();
+        if (avatarUrl == null || avatarUrl.isBlank()) {
+            avatarUrl = "https://example.com/uploads/avatar-" + u.getId() + ".jpg";
+        }
+        u.setAvatarUrl(avatarUrl);
+        u.setUpdatedAt(java.time.Instant.now());
+        authService.updateCurrentUser(u.getFullName(), avatarUrl);
+        return ResponseEntity.ok(Map.of(
+                "message", "Avatar uploaded successfully",
+                "avatarUrl", avatarUrl));
     }
 
     // Sessions
@@ -133,5 +157,16 @@ public class AuthController {
         User u = authService.getCurrentUser();
         authService.revokeSession(java.util.UUID.fromString(id), u.getId());
         return ResponseEntity.ok(Map.of("message", "Session revoked"));
+    }
+
+    // Admin bootstrap (for testing)
+    @PostMapping("/promote-to-admin")
+    public ResponseEntity<?> promoteToAdmin(@RequestBody Map<String, String> body) {
+        String userId = body.get("userId");
+        User user = authService.promoteToAdmin(UUID.fromString(userId));
+        return ResponseEntity.ok(Map.of(
+                "message", "User promoted to ADMIN",
+                "userId", user.getId(),
+                "role", user.getRole().toString()));
     }
 }

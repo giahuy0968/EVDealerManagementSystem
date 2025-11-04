@@ -1,15 +1,17 @@
-package com.evdms.authservice.service;
+package com.evdms.authservice.dto;
 
 public class AuthResponse {
     private String token;
     private String refreshToken;
+    private String userId;
     private String email;
     private String fullName;
     private String role;
 
-    public AuthResponse(String token, String refreshToken, String email, String fullName, String role) {
+    public AuthResponse(String token, String refreshToken, String userId, String email, String fullName, String role) {
         this.token = token;
         this.refreshToken = refreshToken;
+        this.userId = userId;
         this.email = email;
         this.fullName = fullName;
         this.role = role;
@@ -46,6 +48,14 @@ public class AuthResponse {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getRole() {

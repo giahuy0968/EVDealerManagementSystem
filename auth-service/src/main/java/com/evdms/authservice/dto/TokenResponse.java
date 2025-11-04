@@ -1,4 +1,4 @@
-package com.evdms.authservice.service;
+package com.evdms.authservice.dto;
 
 public class TokenResponse {
     private String accessToken;

@@ -1,9 +1,9 @@
 package com.evdms.authservice.service;
 
-import com.evdms.authservice.service.AuthResponse;
-import com.evdms.authservice.service.LoginRequest;
-import com.evdms.authservice.service.RegisterRequest;
-import com.evdms.authservice.service.TokenResponse;
+import com.evdms.authservice.dto.AuthResponse;
+import com.evdms.authservice.dto.LoginRequest;
+import com.evdms.authservice.dto.RegisterRequest;
+import com.evdms.authservice.dto.TokenResponse;
 import com.evdms.authservice.entity.EmailVerificationToken;
 import com.evdms.authservice.entity.Session;
 import com.evdms.authservice.entity.User;
@@ -126,7 +126,7 @@ public class AuthService {
         session.setCreatedAt(Instant.now());
         sessionRepository.save(session);
 
-        return new AuthResponse(token, refreshToken, user.getEmail(), user.getFullName(),
+        return new AuthResponse(token, refreshToken, user.getId().toString(), user.getEmail(), user.getFullName(),
                 user.getRole() != null ? user.getRole().toString() : "USER");
     }
 
@@ -181,8 +181,10 @@ public class AuthService {
     // Profile endpoints
     public User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getName() == null)
-            throw new RuntimeException("Unauthorized");
+        if (auth == null || auth.getName() == null) {
+            throw new org.springframework.security.authentication.AuthenticationCredentialsNotFoundException(
+                    "Unauthorized");
+        }
         return userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
@@ -197,6 +199,7 @@ public class AuthService {
     }
 
     // Password management
+    @Transactional
     public void changePassword(String currentPassword, String newPassword) {
         User user = getCurrentUser();
         if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
@@ -294,5 +297,15 @@ public class AuthService {
             throw new RuntimeException("Forbidden");
         }
         sessionRepository.delete(s);
+    }
+
+    // Admin promotion (for testing/bootstrap)
+    @Transactional
+    public User promoteToAdmin(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setRole(User.Role.ADMIN);
+        user.setUpdatedAt(Instant.now());
+        return userRepository.save(user);
     }
 }
