@@ -26,7 +26,8 @@ public class LeadService {
     private final EventPublisher events;
     private final RoundRobinService roundRobin;
 
-    public LeadService(LeadRepository leads, CustomerRepository customers, EventPublisher events, RoundRobinService roundRobin) {
+    public LeadService(LeadRepository leads, CustomerRepository customers, EventPublisher events,
+            RoundRobinService roundRobin) {
         this.leads = leads;
         this.customers = customers;
         this.events = events;
@@ -47,6 +48,10 @@ public class LeadService {
 
     public Page<Lead> list(UUID dealerId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
+        if (dealerId == null) {
+            // Return all leads (for USER role or admin without dealer filter)
+            return leads.findAll(pageable);
+        }
         return leads.findAllByDealerId(dealerId, pageable);
     }
 
@@ -105,7 +110,7 @@ public class LeadService {
         events.publish("lead.converted", Map.of(
                 "lead_id", l.getId().toString(),
                 "customer_id", saved.getId().toString(),
-                "dealer_id", saved.getDealerId().toString()));
+                "dealer_id", saved.getDealerId() != null ? saved.getDealerId().toString() : ""));
         return saved;
     }
 }

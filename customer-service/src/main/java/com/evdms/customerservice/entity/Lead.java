@@ -25,7 +25,7 @@ public class Lead {
     @GeneratedValue
     private UUID id;
 
-    @Column(name = "dealer_id", nullable = false)
+    @Column(name = "dealer_id", nullable = true)
     private UUID dealerId;
 
     @Column(name = "assigned_staff_id")

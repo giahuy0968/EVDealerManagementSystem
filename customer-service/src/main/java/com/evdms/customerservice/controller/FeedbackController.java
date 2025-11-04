@@ -21,20 +21,20 @@ public class FeedbackController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN','DEALER_MANAGER','DEALER_STAFF')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','DEALER_MANAGER','DEALER_STAFF','USER')")
     public ResponseEntity<Feedback> create(@Valid @RequestBody Feedback f) {
         Feedback saved = service.create(f);
         return ResponseEntity.created(URI.create("/api/v1/feedbacks/" + saved.getId())).body(saved);
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN','DEALER_MANAGER','DEALER_STAFF')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','DEALER_MANAGER','DEALER_STAFF','USER')")
     public List<Feedback> list() {
         return service.list();
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','DEALER_MANAGER','DEALER_STAFF')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','DEALER_MANAGER','DEALER_STAFF','USER')")
     public Feedback get(@PathVariable UUID id) {
         return service.get(id);
     }

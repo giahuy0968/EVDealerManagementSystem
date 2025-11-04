@@ -21,7 +21,7 @@ public class ComplaintController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN','DEALER_MANAGER','DEALER_STAFF')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','DEALER_MANAGER','DEALER_STAFF','USER')")
     public ResponseEntity<Complaint> create(@Valid @RequestBody Complaint c) {
         Complaint saved = service.create(c);
         return ResponseEntity.created(URI.create("/api/v1/complaints/" + saved.getId())).body(saved);

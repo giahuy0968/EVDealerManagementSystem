@@ -25,7 +25,7 @@ public class SegmentController {
     }
 
     @GetMapping("/{id}/score")
-    @PreAuthorize("hasAnyAuthority('ADMIN','DEALER_MANAGER','DEALER_STAFF')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','DEALER_MANAGER','DEALER_STAFF','USER')")
     public ResponseEntity<Map<String, Object>> score(@PathVariable UUID id) {
         // Placeholder scoring logic
         return ResponseEntity.ok(Map.of("customer_id", id, "score", 72));

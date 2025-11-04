@@ -32,13 +32,16 @@ public class CustomerService {
     }
 
     public Customer create(@Valid Customer c) {
-        customers.findByDealerIdAndPhone(c.getDealerId(), c.getPhone()).ifPresent(existing -> {
-            throw new IllegalArgumentException("Phone already exists for this dealer");
-        });
+        // Check duplicate phone only if dealerId exists (dealer scope)
+        if (c.getDealerId() != null) {
+            customers.findByDealerIdAndPhone(c.getDealerId(), c.getPhone()).ifPresent(existing -> {
+                throw new IllegalArgumentException("Phone already exists for this dealer");
+            });
+        }
         Customer saved = customers.save(c);
         events.publish("customer.created", Map.of(
                 "customer_id", saved.getId().toString(),
-                "dealer_id", saved.getDealerId().toString(),
+                "dealer_id", saved.getDealerId() != null ? saved.getDealerId().toString() : "",
                 "full_name", saved.getFullName(),
                 "phone", saved.getPhone(),
                 "email", Optional.ofNullable(saved.getEmail()).orElse("")));
@@ -48,15 +51,16 @@ public class CustomerService {
     public Page<Customer> list(UUID dealerId, UUID assignedStaffId, int page, int size, Optional<String> name,
             Optional<CustomerStatus> status) {
         Pageable pageable = PageRequest.of(page, size);
-        
+
         // Filter by assigned staff if provided (for DEALER_STAFF role)
         if (assignedStaffId != null) {
             if (name.isPresent()) {
-                return customers.findByAssignedStaffIdAndFullNameContainingIgnoreCaseAndDeletedFalse(assignedStaffId, name.get(), pageable);
+                return customers.findByAssignedStaffIdAndFullNameContainingIgnoreCaseAndDeletedFalse(assignedStaffId,
+                        name.get(), pageable);
             }
             return customers.findByAssignedStaffIdAndDeletedFalse(assignedStaffId, pageable);
         }
-        
+
         // Admin sees all (no dealer filter)
         if (dealerId == null) {
             if (name.isPresent()) {
@@ -67,21 +71,22 @@ public class CustomerService {
             }
             return customers.findAllByDeletedFalse(pageable);
         }
-        
+
         // Dealer Manager sees dealer scope
         if (name.isPresent()) {
-            return customers.findByDealerIdAndFullNameContainingIgnoreCaseAndDeletedFalse(dealerId, name.get(), pageable);
+            return customers.findByDealerIdAndFullNameContainingIgnoreCaseAndDeletedFalse(dealerId, name.get(),
+                    pageable);
         }
         if (status.isPresent()) {
             return customers.findByDealerIdAndStatusAndDeletedFalse(dealerId, status.get(), pageable);
         }
         return customers.findAllByDealerIdAndDeletedFalse(dealerId, pageable);
     }
-    
+
     public Page<Customer> searchMulti(UUID dealerId, UUID assignedStaffId, String query, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         String searchPattern = "%" + query.toLowerCase() + "%";
-        
+
         if (assignedStaffId != null) {
             // Staff sees only assigned customers
             return customers.findByAssignedStaffIdAndSearchAndDeletedFalse(assignedStaffId, searchPattern, pageable);
