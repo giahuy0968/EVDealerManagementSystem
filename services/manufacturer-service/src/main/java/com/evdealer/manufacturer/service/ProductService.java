@@ -14,5 +14,6 @@ public interface ProductService {
     ProductResponse updateProduct(Long id, ProductRequest productRequest);
     void discontinueProduct(Long id); // <--- SỬA ĐỔI: Đổi tên thành discontinueProduct
     ProductResponse updateInventory(Long id, Integer newInventory);
-    List<ProductResponse> searchProducts(String keyword, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, com.evdealer.manufacturer.model.entity.Product.ProductStatus status);
+    List<ProductResponse> searchProducts(String keyword, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, com.evdealer.manufacturer.model.entity.Product.ProductStatus status, Long categoryId);
+    List<ProductResponse> getProductsByCategory(Long categoryId);
 }

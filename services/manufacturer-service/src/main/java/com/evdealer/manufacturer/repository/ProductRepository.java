@@ -23,13 +23,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     boolean existsByModelNameAndVersionAndColor(String modelName, String version, String color);
 
+    List<Product> findByCategoryId(Long categoryId);
+
     @Query("SELECT p FROM Product p WHERE " +
            "(:keyword IS NULL OR LOWER(p.modelName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(p.specifications) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
            "AND (:minPrice IS NULL OR p.wholesalePrice >= :minPrice) " +
            "AND (:maxPrice IS NULL OR p.wholesalePrice <= :maxPrice) " +
-           "AND (:status IS NULL OR p.status = :status)")
+           "AND (:status IS NULL OR p.status = :status) " +
+           "AND (:categoryId IS NULL OR p.category.id = :categoryId)")
     List<Product> findAdvancedSearch(@Param("keyword") String keyword,
                                      @Param("minPrice") java.math.BigDecimal minPrice,
                                      @Param("maxPrice") java.math.BigDecimal maxPrice,
-                                     @Param("status") Product.ProductStatus status);
+                                     @Param("status") Product.ProductStatus status,
+                                     @Param("categoryId") Long categoryId);
 }

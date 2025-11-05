@@ -45,6 +45,10 @@ public class Product implements Serializable { // <--- SỬA ĐỔI: implements 
     @Column(columnDefinition = "TEXT")
     private String specifications;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private ProductCategory category;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -59,8 +63,8 @@ public class Product implements Serializable { // <--- SỬA ĐỔI: implements 
     // Constructors
     public Product() {}
 
-    public Product(String modelName, String version, String color, 
-                  BigDecimal wholesalePrice, Integer totalInventory, 
+    public Product(String modelName, String version, String color,
+                  BigDecimal wholesalePrice, Integer totalInventory,
                   String specifications) {
         this.modelName = modelName;
         this.version = version;
@@ -68,6 +72,18 @@ public class Product implements Serializable { // <--- SỬA ĐỔI: implements 
         this.wholesalePrice = wholesalePrice;
         this.totalInventory = totalInventory;
         this.specifications = specifications;
+    }
+
+    public Product(String modelName, String version, String color,
+                  BigDecimal wholesalePrice, Integer totalInventory,
+                  String specifications, ProductCategory category) {
+        this.modelName = modelName;
+        this.version = version;
+        this.color = color;
+        this.wholesalePrice = wholesalePrice;
+        this.totalInventory = totalInventory;
+        this.specifications = specifications;
+        this.category = category;
     }
 
     @PrePersist
@@ -105,6 +121,9 @@ public class Product implements Serializable { // <--- SỬA ĐỔI: implements 
 
     public String getSpecifications() { return specifications; }
     public void setSpecifications(String specifications) { this.specifications = specifications; }
+
+    public ProductCategory getCategory() { return category; }
+    public void setCategory(ProductCategory category) { this.category = category; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

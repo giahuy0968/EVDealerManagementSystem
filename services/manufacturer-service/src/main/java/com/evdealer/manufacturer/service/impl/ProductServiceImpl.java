@@ -3,8 +3,10 @@ package com.evdealer.manufacturer.service.impl;
 import com.evdealer.manufacturer.model.dto.ProductRequest;
 import com.evdealer.manufacturer.model.dto.ProductResponse;
 import com.evdealer.manufacturer.model.entity.Product;
+import com.evdealer.manufacturer.model.entity.ProductCategory;
 import com.evdealer.manufacturer.exception.ResourceNotFoundException;
 import com.evdealer.manufacturer.repository.ProductRepository;
+import com.evdealer.manufacturer.repository.CategoryRepository;
 import com.evdealer.manufacturer.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired; // Giữ lại import, nhưng không dùng
 
@@ -23,10 +25,12 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository; // <--- SỬA ĐỔI: Dùng final
+    private final CategoryRepository categoryRepository;
 
     // <--- SỬA ĐỔI: Constructor Injection
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
@@ -39,6 +43,12 @@ public class ProductServiceImpl implements ProductService {
             throw new IllegalArgumentException("Product with same model, version and color already exists");
         }
 
+        ProductCategory category = null;
+        if (productRequest.getCategoryId() != null) {
+            category = categoryRepository.findById(productRequest.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + productRequest.getCategoryId()));
+        }
+
         Product product = new Product();
         product.setModelName(productRequest.getModelName());
         product.setVersion(productRequest.getVersion());
@@ -46,6 +56,7 @@ public class ProductServiceImpl implements ProductService {
         product.setWholesalePrice(productRequest.getWholesalePrice());
         product.setTotalInventory(productRequest.getTotalInventory());
         product.setSpecifications(productRequest.getSpecifications());
+        product.setCategory(category);
 
         Product savedProduct = productRepository.save(product);
         return new ProductResponse(savedProduct);
@@ -93,12 +104,19 @@ public class ProductServiceImpl implements ProductService {
                 }
             });
 
+        ProductCategory category = null;
+        if (productRequest.getCategoryId() != null) {
+            category = categoryRepository.findById(productRequest.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + productRequest.getCategoryId()));
+        }
+
         product.setModelName(productRequest.getModelName());
         product.setVersion(productRequest.getVersion());
         product.setColor(productRequest.getColor());
         product.setWholesalePrice(productRequest.getWholesalePrice());
         product.setTotalInventory(productRequest.getTotalInventory());
         product.setSpecifications(productRequest.getSpecifications());
+        product.setCategory(category);
 
         Product updatedProduct = productRepository.save(product);
         return new ProductResponse(updatedProduct);
@@ -131,8 +149,16 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductResponse> searchProducts(String keyword, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, Product.ProductStatus status) {
-        return productRepository.findAdvancedSearch(keyword, minPrice, maxPrice, status).stream()
+    public List<ProductResponse> searchProducts(String keyword, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, Product.ProductStatus status, Long categoryId) {
+        return productRepository.findAdvancedSearch(keyword, minPrice, maxPrice, status, categoryId).stream()
+                .map(ProductResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getProductsByCategory(Long categoryId) {
+        return productRepository.findByCategoryId(categoryId).stream()
                 .map(ProductResponse::new)
                 .collect(Collectors.toList());
     }
