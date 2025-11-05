@@ -85,7 +85,8 @@ public class ProductController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) java.math.BigDecimal minPrice,
             @RequestParam(required = false) java.math.BigDecimal maxPrice,
-            @RequestParam(required = false) String status) {
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long categoryId) {
         com.evdealer.manufacturer.model.entity.Product.ProductStatus productStatus = null;
         if (status != null) {
             try {
@@ -94,7 +95,13 @@ public class ProductController {
                 // Invalid status, ignore or handle
             }
         }
-        List<ProductResponse> products = productService.searchProducts(keyword, minPrice, maxPrice, productStatus);
+        List<ProductResponse> products = productService.searchProducts(keyword, minPrice, maxPrice, productStatus, categoryId);
+        return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<ProductResponse>> getProductsByCategory(@PathVariable Long categoryId) {
+        List<ProductResponse> products = productService.getProductsByCategory(categoryId);
         return ResponseEntity.ok(products);
     }
 }

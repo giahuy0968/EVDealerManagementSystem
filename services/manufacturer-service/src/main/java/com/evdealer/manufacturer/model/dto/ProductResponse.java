@@ -14,6 +14,7 @@ public class ProductResponse implements Serializable { // <--- SỬA ĐỔI: imp
     private Integer totalInventory;
     private Product.ProductStatus status;
     private String specifications;
+    private CategoryResponse category;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -27,6 +28,9 @@ public class ProductResponse implements Serializable { // <--- SỬA ĐỔI: imp
         this.totalInventory = product.getTotalInventory();
         this.status = product.getStatus();
         this.specifications = product.getSpecifications();
+        if (product.getCategory() != null) {
+            this.category = new CategoryResponse(product.getCategory());
+        }
         this.createdAt = product.getCreatedAt();
         this.updatedAt = product.getUpdatedAt();
     }
@@ -58,6 +62,9 @@ public class ProductResponse implements Serializable { // <--- SỬA ĐỔI: imp
 
     public String getSpecifications() { return specifications; }
     public void setSpecifications(String specifications) { this.specifications = specifications; }
+
+    public CategoryResponse getCategory() { return category; }
+    public void setCategory(CategoryResponse category) { this.category = category; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

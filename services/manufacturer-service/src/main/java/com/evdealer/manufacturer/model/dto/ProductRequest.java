@@ -24,6 +24,8 @@ public class ProductRequest {
 
     private String specifications;
 
+    private Long categoryId;
+
     // Getters and Setters
     public String getModelName() { return modelName; }
     public void setModelName(String modelName) { this.modelName = modelName; }
@@ -42,4 +44,7 @@ public class ProductRequest {
 
     public String getSpecifications() { return specifications; }
     public void setSpecifications(String specifications) { this.specifications = specifications; }
+
+    public Long getCategoryId() { return categoryId; }
+    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
 }
