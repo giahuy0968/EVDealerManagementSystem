@@ -1,0 +1,822 @@
+{
+	"info": {
+		"name": "Dealer Service API",
+		"description": "Complete API collection for EV Dealer Management System - Dealer Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3002/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "carId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "quotationId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "orderId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "stockRequestId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "contractId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "paymentId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/health",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3002",
+					"path": ["health"]
+				}
+			}
+		},
+		{
+			"name": "Cars",
+			"item": [
+				{
+					"name": "Get All Cars",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.length > 0) {",
+									"        pm.collectionVariables.set('carId', response.data[0].id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cars",
+							"host": ["{{baseUrl}}"],
+							"path": ["cars"]
+						}
+					}
+				},
+				{
+					"name": "Get Car by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cars/{{carId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["cars", "{{carId}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Car",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('carId', response.data.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"VinFast VF 9\",\n  \"model\": \"VF9\",\n  \"version\": \"Eco\",\n  \"year\": 2024,\n  \"basePrice\": 1490000000,\n  \"colors\": [\n    \"Sapphire Blue\",\n    \"Pearl White\",\n    \"Midnight Black\"\n  ],\n  \"specifications\": {\n    \"batteryCapacity\": \"123 kWh\",\n    \"range\": \"594 km\",\n    \"motor\": \"Dual Motor AWD\",\n    \"power\": \"300 kW\",\n    \"torque\": \"640 Nm\",\n    \"seats\": 7,\n    \"transmission\": \"Automatic\",\n    \"chargingTime\": \"10 hours (AC), 50 min (DC)\"\n  },\n  \"images\": [\n    \"https://example.com/vf9-front.jpg\",\n    \"https://example.com/vf9-side.jpg\",\n    \"https://example.com/vf9-interior.jpg\"\n  ],\n  \"stock\": 3\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/cars",
+							"host": ["{{baseUrl}}"],
+							"path": ["cars"]
+						}
+					}
+				},
+				{
+					"name": "Update Car",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"basePrice\": 1450000000,\n  \"stock\": 5\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/cars/{{carId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["cars", "{{carId}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Car Stock",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 10\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/cars/{{carId}}/stock",
+							"host": ["{{baseUrl}}"],
+							"path": ["cars", "{{carId}}", "stock"]
+						}
+					}
+				},
+				{
+					"name": "Compare Cars",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"carIds\": [\n    \"{{carId}}\"\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/cars/compare",
+							"host": ["{{baseUrl}}"],
+							"path": ["cars", "compare"]
+						}
+					}
+				},
+				{
+					"name": "Delete Car",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cars/{{carId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["cars", "{{carId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Quotations",
+			"item": [
+				{
+					"name": "Get All Quotations",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.length > 0) {",
+									"        pm.collectionVariables.set('quotationId', response.data[0].id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/quotations",
+							"host": ["{{baseUrl}}"],
+							"path": ["quotations"]
+						}
+					}
+				},
+				{
+					"name": "Get Quotation by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/quotations/{{quotationId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["quotations", "{{quotationId}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Quotation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('quotationId', response.data.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customerId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"customerName\": \"Nguyen Van A\",\n  \"carModelId\": \"{{carId}}\",\n  \"carModelName\": \"VinFast VF 9\",\n  \"basePrice\": 1490000000,\n  \"promotions\": [\n    {\n      \"name\": \"Giam gia Black Friday\",\n      \"discount\": 50000000\n    },\n    {\n      \"name\": \"Uu dai khach hang than thiet\",\n      \"discount\": 30000000\n    }\n  ],\n  \"totalPrice\": 1410000000,\n  \"validUntil\": \"2025-12-31\",\n  \"note\": \"Bao gia dac biet cho khach hang VIP\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/quotations",
+							"host": ["{{baseUrl}}"],
+							"path": ["quotations"]
+						}
+					}
+				},
+				{
+					"name": "Update Quotation",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"totalPrice\": 1400000000,\n  \"note\": \"Cap nhat gia sau khi thuong luong\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/quotations/{{quotationId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["quotations", "{{quotationId}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Quotation Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"ACCEPTED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/quotations/{{quotationId}}/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["quotations", "{{quotationId}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Delete Quotation",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/quotations/{{quotationId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["quotations", "{{quotationId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Get All Orders",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.length > 0) {",
+									"        pm.collectionVariables.set('orderId', response.data[0].id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders"]
+						}
+					}
+				},
+				{
+					"name": "Get Order by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders", "{{orderId}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('orderId', response.data.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customerId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"customerName\": \"Tran Thi B\",\n  \"items\": [\n    {\n      \"carModelId\": \"{{carId}}\",\n      \"carModelName\": \"VinFast VF 9\",\n      \"quantity\": 1,\n      \"unitPrice\": 1490000000\n    }\n  ],\n  \"totalAmount\": 1490000000,\n  \"paymentMethod\": \"BANK_TRANSFER\",\n  \"note\": \"Don hang mua xe VinFast VF 9\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders"]
+						}
+					}
+				},
+				{
+					"name": "Track Order",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}/tracking",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders", "{{orderId}}", "tracking"]
+						}
+					}
+				},
+				{
+					"name": "Update Order Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"CONFIRMED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders", "{{orderId}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Delete Order",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders", "{{orderId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Stock Requests",
+			"item": [
+				{
+					"name": "Get All Stock Requests",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.length > 0) {",
+									"        pm.collectionVariables.set('stockRequestId', response.data[0].id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/stock-requests",
+							"host": ["{{baseUrl}}"],
+							"path": ["stock-requests"]
+						}
+					}
+				},
+				{
+					"name": "Get Stock Request by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/stock-requests/{{stockRequestId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["stock-requests", "{{stockRequestId}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Stock Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('stockRequestId', response.data.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dealerId\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"dealerName\": \"Showroom VinFast Ha Noi\",\n  \"carModelId\": \"{{carId}}\",\n  \"carModelName\": \"VinFast VF 9\",\n  \"quantity\": 5,\n  \"urgency\": \"HIGH\",\n  \"expectedDate\": \"2025-12-01\",\n  \"reason\": \"Tang cuong ton kho cho mua cao diem\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/stock-requests",
+							"host": ["{{baseUrl}}"],
+							"path": ["stock-requests"]
+						}
+					}
+				},
+				{
+					"name": "Update Stock Request Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"APPROVED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/stock-requests/{{stockRequestId}}/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["stock-requests", "{{stockRequestId}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Delete Stock Request",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/stock-requests/{{stockRequestId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["stock-requests", "{{stockRequestId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Contracts",
+			"item": [
+				{
+					"name": "Get All Contracts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.length > 0) {",
+									"        pm.collectionVariables.set('contractId', response.data[0].id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/contracts",
+							"host": ["{{baseUrl}}"],
+							"path": ["contracts"]
+						}
+					}
+				},
+				{
+					"name": "Get Contract by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/contracts/{{contractId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["contracts", "{{contractId}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Contract",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('contractId', response.data.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"customerId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"customerName\": \"Le Van C\",\n  \"contractType\": \"SALES\",\n  \"terms\": \"Hop dong mua ban xe dien VinFast VF 9. Khach hang cam ket thanh toan du 100% gia tri xe trong vong 30 ngay ke tu ngay ky hop dong. Xe duoc bao hanh 5 nam hoac 160,000 km.\",\n  \"validFrom\": \"2025-11-07\",\n  \"validTo\": \"2026-11-07\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/contracts",
+							"host": ["{{baseUrl}}"],
+							"path": ["contracts"]
+						}
+					}
+				},
+				{
+					"name": "Update Contract",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"terms\": \"Hop dong mua ban xe dien - Updated terms\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/contracts/{{contractId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["contracts", "{{contractId}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Contract Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"ACTIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/contracts/{{contractId}}/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["contracts", "{{contractId}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Delete Contract",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/contracts/{{contractId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["contracts", "{{contractId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Payments",
+			"item": [
+				{
+					"name": "Get All Payments",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.length > 0) {",
+									"        pm.collectionVariables.set('paymentId', response.data[0].id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/payments",
+							"host": ["{{baseUrl}}"],
+							"path": ["payments"]
+						}
+					}
+				},
+				{
+					"name": "Get Payment by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/payments/{{paymentId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["payments", "{{paymentId}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Payment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('paymentId', response.data.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"orderNumber\": \"ORD-123456789\",\n  \"amount\": 1490000000,\n  \"paymentMethod\": \"BANK_TRANSFER\",\n  \"transactionReference\": \"TXN-2025110701\",\n  \"note\": \"Thanh toan toan bo don hang qua chuyen khoan ngan hang Vietcombank\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payments",
+							"host": ["{{baseUrl}}"],
+							"path": ["payments"]
+						}
+					}
+				},
+				{
+					"name": "Update Payment Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"COMPLETED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payments/{{paymentId}}/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["payments", "{{paymentId}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Delete Payment",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/payments/{{paymentId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["payments", "{{paymentId}}"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

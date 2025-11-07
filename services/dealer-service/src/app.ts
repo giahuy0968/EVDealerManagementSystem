@@ -1,28 +1,55 @@
-import express from "express";
-import cors from "cors";
-import bodyParser from "body-parser";
-import carRoutes from "./routes/carRoutes";
-import orderRoutes from "./routes/orderRoutes";
-import quotationRoutes from "./routes/quotationRoutes";
-import contractRoutes from "./routes/contractRoutes";
-import paymentRoutes from "./routes/paymentRoutes";
-import stockRoutes from "./routes/stockRoutes";
-import { errorHandler } from "./middleware/errorHandler";
+import 'reflect-metadata';
+import express, { Application } from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import { config } from './config';
+import routes from './routes';
+import { errorHandler, notFoundHandler } from './middlewares/errorHandler';
+import { logger } from './utils/logger';
 
-const app = express();
+export function createApp(): Application {
+  const app = express();
 
-app.use(cors());
-app.use(bodyParser.json());
+  // Security middleware
+  app.use(helmet());
 
-app.get("/", (_, res) => res.json({ service: "dealer-service", ok: true }));
+  // CORS
+  app.use(
+    cors({
+      origin: config.cors.origin,
+      credentials: true,
+    })
+  );
 
-app.use("/api/v1/cars", carRoutes);
-app.use("/api/v1/orders", orderRoutes);
-app.use("/api/v1/quotations", quotationRoutes);
-app.use("/api/v1/contracts", contractRoutes);
-app.use("/api/v1/payments", paymentRoutes);
-app.use("/api/v1/stock-requests", stockRoutes);
+  // Body parser
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
 
-app.use(errorHandler);
+  // Request logging
+  app.use((req, res, next) => {
+    logger.info(`${req.method} ${req.path}`, {
+      query: req.query,
+      ip: req.ip,
+    });
+    next();
+  });
 
-export default app;
+  // Health check
+  app.get('/health', (req, res) => {
+    res.json({
+      success: true,
+      service: 'dealer-service',
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  // API routes
+  app.use('/api/v1', routes);
+
+  // Error handlers
+  app.use(notFoundHandler);
+  app.use(errorHandler);
+
+  return app;
+}

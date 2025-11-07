@@ -1,23 +1,58 @@
-import * as amqplib from "amqplib";
-import logger from "../utils/logger";
+import amqp from 'amqplib';
+import { config } from './index';
+import { logger } from '../utils/logger';
 
-let connection: amqplib.Connection | null = null;
-let channel: amqplib.Channel | null = null;
+let connection: any = null;
+let channel: any = null;
 
-export async function initRabbitMQ() {
-  const url = process.env.RABBITMQ_URL || "amqp://localhost";
-  const conn = await amqplib.connect(url);
-  connection = conn as unknown as amqplib.Connection;
-  const ch = await connection.createChannel();
-  channel = ch as amqplib.Channel;
-
-  await channel.assertExchange("events", "topic", { durable: true });
-  channel.on("error", (err) => logger.error("Rabbit channel error", { err }));
-  return { connection, channel };
+export async function initializeRabbitMQ(): Promise<void> {
+  try {
+    connection = await amqp.connect(config.rabbitmq.url);
+    if (connection) {
+      channel = await connection.createChannel();
+      
+      // Declare exchanges
+      if (channel) {
+        await channel.assertExchange('dealer.events', 'topic', { durable: true });
+      }
+    }
+    
+    logger.info('✅ RabbitMQ connected successfully');
+  } catch (error) {
+    logger.error('❌ Failed to connect to RabbitMQ:', error);
+    throw error;
+  }
 }
 
-export async function publishEvent(routingKey: string, payload: any) {
-  if (!channel) throw new Error("Rabbit channel not initialized");
-  const buffer = Buffer.from(JSON.stringify(payload));
-  channel.publish("events", routingKey, buffer, { persistent: true });
+export function getChannel(): any {
+  if (!channel) {
+    throw new Error('RabbitMQ channel not initialized');
+  }
+  return channel;
+}
+
+export async function publishEvent(routingKey: string, data: any): Promise<void> {
+  try {
+    const ch = getChannel();
+    ch.publish(
+      'dealer.events',
+      routingKey,
+      Buffer.from(JSON.stringify(data)),
+      { persistent: true }
+    );
+    logger.info(`📤 Event published: ${routingKey}`);
+  } catch (error) {
+    logger.error('Failed to publish event:', error);
+    throw error;
+  }
+}
+
+export async function closeRabbitMQ(): Promise<void> {
+  try {
+    if (channel) await channel.close();
+    if (connection) await connection.close();
+    logger.info('RabbitMQ connection closed');
+  } catch (error) {
+    logger.error('Error closing RabbitMQ:', error);
+  }
 }

@@ -1,30 +1,148 @@
-import { Request, Response, NextFunction } from "express";
-import { quotationService } from "../services/quotationService";
+import { Request, Response, NextFunction } from 'express';
+import { QuotationService } from '../services/QuotationService';
 
-export const createQuotation = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const q = await quotationService.create(req.body);
-    res.status(201).json(q);
-  } catch (err) {
-    next(err);
-  }
-};
+export class QuotationController {
+  private quotationService: QuotationService;
 
-export const listQuotations = async (_req: Request, res: Response, next: NextFunction) => {
-  try {
-    const data = await quotationService.list();
-    res.json(data);
-  } catch (err) {
-    next(err);
+  constructor() {
+    this.quotationService = new QuotationService();
   }
-};
 
-export const getQuotation = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const q = await quotationService.getById(req.params.id);
-    if (!q) return res.status(404).json({ message: "Not found" });
-    res.json(q);
-  } catch (err) {
-    next(err);
-  }
-};
+  getQuotations = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { customerId } = req.query;
+
+      let quotations;
+      if (customerId) {
+        quotations = await this.quotationService.getQuotationsByCustomerId(customerId as string);
+      } else {
+        quotations = await this.quotationService.getAllQuotations();
+      }
+
+      res.json({
+        success: true,
+        data: quotations,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getQuotationById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const quotation = await this.quotationService.getQuotationById(id);
+
+      if (!quotation) {
+        res.status(404).json({
+          success: false,
+          error: {
+            code: 'QUOTATION_NOT_FOUND',
+            message: 'Quotation not found',
+          },
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        data: quotation,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  createQuotation = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      // TODO: Get customer name from customer service or auth context
+      const customerName = req.body.customerName || 'Customer';
+      
+      const quotation = await this.quotationService.createQuotation(req.body, customerName);
+
+      res.status(201).json({
+        success: true,
+        data: quotation,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  updateQuotation = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const quotation = await this.quotationService.updateQuotation(id, req.body);
+
+      if (!quotation) {
+        res.status(404).json({
+          success: false,
+          error: {
+            code: 'QUOTATION_NOT_FOUND',
+            message: 'Quotation not found',
+          },
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        data: quotation,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  updateStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      const quotation = await this.quotationService.updateQuotationStatus(id, status);
+
+      if (!quotation) {
+        res.status(404).json({
+          success: false,
+          error: {
+            code: 'QUOTATION_NOT_FOUND',
+            message: 'Quotation not found',
+          },
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        data: quotation,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteQuotation = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const result = await this.quotationService.deleteQuotation(id);
+
+      if (!result) {
+        res.status(404).json({
+          success: false,
+          error: {
+            code: 'QUOTATION_NOT_FOUND',
+            message: 'Quotation not found',
+          },
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        message: 'Quotation deleted successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+}

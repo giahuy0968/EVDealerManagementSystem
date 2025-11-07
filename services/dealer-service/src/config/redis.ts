@@ -1,15 +1,28 @@
-import Redis from "ioredis";
+import { createClient } from 'redis';
+import { config } from './index';
+import { logger } from '../utils/logger';
 
-let client: Redis | null = null;
+export const redisClient = createClient({
+  url: config.redis.url,
+});
 
-export async function initRedis() {
-  const url = process.env.REDIS_URL || "redis://127.0.0.1:6379";
-  client = new Redis(url);
-  await client.ping();
-  return client;
+redisClient.on('error', (err) => {
+  logger.error('Redis Client Error:', err);
+});
+
+redisClient.on('connect', () => {
+  logger.info('✅ Redis connected successfully');
+});
+
+export async function initializeRedis(): Promise<void> {
+  try {
+    await redisClient.connect();
+  } catch (error) {
+    logger.error('❌ Failed to connect to Redis:', error);
+    throw error;
+  }
 }
 
-export function getRedis() {
-  if (!client) throw new Error("Redis not initialized");
-  return client;
+export async function closeRedis(): Promise<void> {
+  await redisClient.quit();
 }
