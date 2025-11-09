@@ -1,5 +1,6 @@
 package com.evdealer.manufacturer.service.impl;
 
+<<<<<<< HEAD
 import com.evdealer.manufacturer.exception.ResourceNotFoundException;
 import com.evdealer.manufacturer.model.dto.CategoryRequest;
 import com.evdealer.manufacturer.model.dto.CategoryResponse;
@@ -8,15 +9,34 @@ import com.evdealer.manufacturer.repository.CategoryRepository;
 import com.evdealer.manufacturer.service.CategoryService;
 import java.util.List;
 import java.util.stream.Collectors;
+=======
+import com.evdealer.manufacturer.model.dto.CategoryRequest;
+import com.evdealer.manufacturer.model.dto.CategoryResponse;
+import com.evdealer.manufacturer.model.entity.ProductCategory;
+import com.evdealer.manufacturer.exception.ResourceNotFoundException;
+import com.evdealer.manufacturer.repository.CategoryRepository;
+import com.evdealer.manufacturer.service.CategoryService;
+import org.springframework.beans.factory.annotation.Autowired;
+>>>>>>> HoangPhuc
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+<<<<<<< HEAD
 @Service
 @Transactional
 public class CategoryServiceImpl
 implements CategoryService {
+=======
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional
+public class CategoryServiceImpl implements CategoryService {
+
+>>>>>>> HoangPhuc
     private final CategoryRepository categoryRepository;
 
     public CategoryServiceImpl(CategoryRepository categoryRepository) {
@@ -25,6 +45,7 @@ implements CategoryService {
 
     @Override
     public CategoryResponse createCategory(CategoryRequest categoryRequest) {
+<<<<<<< HEAD
         if (this.categoryRepository.existsByName(categoryRequest.getName())) {
             throw new IllegalArgumentException("Category with name '" + categoryRequest.getName() + "' already exists");
         }
@@ -32,17 +53,36 @@ implements CategoryService {
         category.setName(categoryRequest.getName());
         category.setDescription(categoryRequest.getDescription());
         ProductCategory savedCategory = (ProductCategory)this.categoryRepository.save(category);
+=======
+        if (categoryRepository.existsByName(categoryRequest.getName())) {
+            throw new IllegalArgumentException("Category with name '" + categoryRequest.getName() + "' already exists");
+        }
+
+        ProductCategory category = new ProductCategory();
+        category.setName(categoryRequest.getName());
+        category.setDescription(categoryRequest.getDescription());
+
+        ProductCategory savedCategory = categoryRepository.save(category);
+>>>>>>> HoangPhuc
         return new CategoryResponse(savedCategory);
     }
 
     @Override
+<<<<<<< HEAD
     @Transactional(readOnly=true)
     public CategoryResponse getCategoryById(Long id) {
         ProductCategory category = (ProductCategory)this.categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + String.valueOf(id)));
+=======
+    @Transactional(readOnly = true)
+    public CategoryResponse getCategoryById(Long id) {
+        ProductCategory category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
+>>>>>>> HoangPhuc
         return new CategoryResponse(category);
     }
 
     @Override
+<<<<<<< HEAD
     @Transactional(readOnly=true)
     public Page<CategoryResponse> getAllCategories(Pageable pageable) {
         return this.categoryRepository.findAll(pageable).map(CategoryResponse::new);
@@ -52,10 +92,25 @@ implements CategoryService {
     @Transactional(readOnly=true)
     public List<CategoryResponse> getAllCategories() {
         return this.categoryRepository.findAll().stream().map(CategoryResponse::new).collect(Collectors.toList());
+=======
+    @Transactional(readOnly = true)
+    public Page<CategoryResponse> getAllCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable)
+                .map(CategoryResponse::new);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> getAllCategories() {
+        return categoryRepository.findAll().stream()
+                .map(CategoryResponse::new)
+                .collect(Collectors.toList());
+>>>>>>> HoangPhuc
     }
 
     @Override
     public CategoryResponse updateCategory(Long id, CategoryRequest categoryRequest) {
+<<<<<<< HEAD
         ProductCategory category = (ProductCategory)this.categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + String.valueOf(id)));
         if (!category.getName().equals(categoryRequest.getName()) && this.categoryRepository.existsByName(categoryRequest.getName())) {
             throw new IllegalArgumentException("Category with name '" + categoryRequest.getName() + "' already exists");
@@ -63,14 +118,36 @@ implements CategoryService {
         category.setName(categoryRequest.getName());
         category.setDescription(categoryRequest.getDescription());
         ProductCategory updatedCategory = (ProductCategory)this.categoryRepository.save(category);
+=======
+        ProductCategory category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
+
+        // Check if name is being changed and if it conflicts
+        if (!category.getName().equals(categoryRequest.getName()) &&
+            categoryRepository.existsByName(categoryRequest.getName())) {
+            throw new IllegalArgumentException("Category with name '" + categoryRequest.getName() + "' already exists");
+        }
+
+        category.setName(categoryRequest.getName());
+        category.setDescription(categoryRequest.getDescription());
+
+        ProductCategory updatedCategory = categoryRepository.save(category);
+>>>>>>> HoangPhuc
         return new CategoryResponse(updatedCategory);
     }
 
     @Override
     public void deleteCategory(Long id) {
+<<<<<<< HEAD
         if (!this.categoryRepository.existsById(id)) {
             throw new ResourceNotFoundException("Category not found with id: " + String.valueOf(id));
         }
         this.categoryRepository.deleteById(id);
+=======
+        if (!categoryRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Category not found with id: " + id);
+        }
+        categoryRepository.deleteById(id);
+>>>>>>> HoangPhuc
     }
 }

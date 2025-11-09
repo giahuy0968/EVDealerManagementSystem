@@ -2,6 +2,7 @@ package com.evdealer.manufacturer.service;
 
 import com.evdealer.manufacturer.model.dto.ProductRequest;
 import com.evdealer.manufacturer.model.dto.ProductResponse;
+<<<<<<< HEAD
 import com.evdealer.manufacturer.model.entity.Product;
 import java.math.BigDecimal;
 import java.util.List;
@@ -26,4 +27,20 @@ public interface ProductService {
     public List<ProductResponse> searchProducts(String var1, BigDecimal var2, BigDecimal var3, Product.ProductStatus var4, Long var5);
 
     public List<ProductResponse> getProductsByCategory(Long var1);
+=======
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import java.util.List;
+
+public interface ProductService {
+    ProductResponse createProduct(ProductRequest productRequest);
+    ProductResponse getProductById(Long id);
+    Page<ProductResponse> getAllProducts(Pageable pageable);
+    List<ProductResponse> getActiveProducts();
+    ProductResponse updateProduct(Long id, ProductRequest productRequest);
+    void discontinueProduct(Long id); // <--- SỬA ĐỔI: Đổi tên thành discontinueProduct
+    ProductResponse updateInventory(Long id, Integer newInventory);
+    List<ProductResponse> searchProducts(String keyword, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, com.evdealer.manufacturer.model.entity.Product.ProductStatus status, Long categoryId);
+    List<ProductResponse> getProductsByCategory(Long categoryId);
+>>>>>>> HoangPhuc
 }

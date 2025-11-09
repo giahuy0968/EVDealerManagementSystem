@@ -1,5 +1,6 @@
 package com.evdealer.manufacturer.model.dto;
 
+<<<<<<< HEAD
 import com.evdealer.manufacturer.model.dto.CategoryResponse;
 import com.evdealer.manufacturer.model.entity.Product;
 import java.io.Serializable;
@@ -8,6 +9,14 @@ import java.time.LocalDateTime;
 
 public class ProductResponse
 implements Serializable {
+=======
+import com.evdealer.manufacturer.model.entity.Product;
+import java.io.Serializable; // <--- SỬA ĐỔI: Thêm Serializable
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+public class ProductResponse implements Serializable { // <--- SỬA ĐỔI: implements Serializable
+>>>>>>> HoangPhuc
     private Long id;
     private String modelName;
     private String version;
@@ -20,6 +29,10 @@ implements Serializable {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+<<<<<<< HEAD
+=======
+    // Constructor from Entity
+>>>>>>> HoangPhuc
     public ProductResponse(Product product) {
         this.id = product.getId();
         this.modelName = product.getModelName();
@@ -36,6 +49,7 @@ implements Serializable {
         this.updatedAt = product.getUpdatedAt();
     }
 
+<<<<<<< HEAD
     public ProductResponse() {
     }
 
@@ -127,3 +141,42 @@ implements Serializable {
         this.updatedAt = updatedAt;
     }
 }
+=======
+    // Default constructor
+    public ProductResponse() {}
+
+    // Getters and Setters (Giữ nguyên)
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getModelName() { return modelName; }
+    public void setModelName(String modelName) { this.modelName = modelName; }
+
+    public String getVersion() { return version; }
+    public void setVersion(String version) { this.version = version; }
+
+    public String getColor() { return color; }
+    public void setColor(String color) { this.color = color; }
+
+    public BigDecimal getWholesalePrice() { return wholesalePrice; }
+    public void setWholesalePrice(BigDecimal wholesalePrice) { this.wholesalePrice = wholesalePrice; }
+
+    public Integer getTotalInventory() { return totalInventory; }
+    public void setTotalInventory(Integer totalInventory) { this.totalInventory = totalInventory; }
+
+    public Product.ProductStatus getStatus() { return status; }
+    public void setStatus(Product.ProductStatus status) { this.status = status; }
+
+    public String getSpecifications() { return specifications; }
+    public void setSpecifications(String specifications) { this.specifications = specifications; }
+
+    public CategoryResponse getCategory() { return category; }
+    public void setCategory(CategoryResponse category) { this.category = category; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+}
+>>>>>>> HoangPhuc

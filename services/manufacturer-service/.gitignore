@@ -1,0 +1,10 @@
+
+# Environment files
+application-supabase.properties
+application-prod.properties
+.env
+*.env
+
+# Database
+*.db
+
