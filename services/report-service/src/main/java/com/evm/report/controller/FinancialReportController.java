@@ -1,12 +1,10 @@
 package com.evm.report.controller;
 
-import com.evm.report.service.FinancialMetricsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,8 +12,6 @@ import java.util.Map;
 @RequestMapping("/api/v1/reports/financial")
 @RequiredArgsConstructor
 public class FinancialReportController {
-
-    private final FinancialMetricsService financialMetricsService;
 
     @GetMapping("/revenue")
     public ResponseEntity<Map<String, Object>> getRevenueReport(
@@ -79,7 +75,8 @@ public class FinancialReportController {
         debt.put("debtToRevenueRatio", 24.3);
         debt.put("averageCollectionPeriod", 45.2);
 
-        Object[] debtAging = {
+        @SuppressWarnings("unchecked")
+        Map<String, Object>[] debtAging = new Map[]{
             Map.of(
                 "period", "0-30 days",
                 "amount", 250000.0,
@@ -160,5 +157,26 @@ public class FinancialReportController {
         cashflow.put("outflowCategories", outflowCategories);
 
         return ResponseEntity.ok(cashflow);
+    }
+
+    @GetMapping("/expenses")
+    public ResponseEntity<Map<String, Object>> getExpensesReport(
+            @RequestParam String dealerId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        Map<String, Object> expenses = new HashMap<>();
+        expenses.put("dealerId", dealerId);
+        expenses.put("period", startDate + " to " + endDate);
+        expenses.put("totalExpenses", 850000.0);
+        expenses.put("expenseBreakdown", Map.of(
+            "inventory_costs", 450000.0,
+            "staff_salaries", 250000.0,
+            "rent_utilities", 80000.0,
+            "marketing", 40000.0,
+            "maintenance", 30000.0
+        ));
+
+        return ResponseEntity.ok(expenses);
     }
 }

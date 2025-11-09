@@ -1,12 +1,10 @@
 package com.evm.report.controller;
 
-import com.evm.report.service.CustomerMetricsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,8 +12,6 @@ import java.util.Map;
 @RequestMapping("/api/v1/reports/customers")
 @RequiredArgsConstructor
 public class CustomerReportController {
-
-    private final CustomerMetricsService customerMetricsService;
 
     @GetMapping("/acquisition")
     public ResponseEntity<Map<String, Object>> getCustomerAcquisition(
@@ -93,7 +89,7 @@ public class CustomerReportController {
         segments.put("dealerId", dealerId);
         segments.put("totalCustomers", 275);
 
-        Object[] segmentData = {
+        Map<String, Object>[] segmentData = new Map[]{
             Map.of(
                 "segment", "Premium",
                 "count", 45,
