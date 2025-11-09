@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -89,7 +91,8 @@ public class CustomerReportController {
         segments.put("dealerId", dealerId);
         segments.put("totalCustomers", 275);
 
-        Map<String, Object>[] segmentData = new Map[]{
+        // Dùng List<Map<String,Object>> thay vì Map[]
+        List<Map<String, Object>> segmentData = List.of(
             Map.of(
                 "segment", "Premium",
                 "count", 45,
@@ -111,7 +114,8 @@ public class CustomerReportController {
                 "avgOrderValue", 55000.0,
                 "retentionRate", 45.3
             )
-        };
+        );
+
         segments.put("segments", segmentData);
 
         return ResponseEntity.ok(segments);
