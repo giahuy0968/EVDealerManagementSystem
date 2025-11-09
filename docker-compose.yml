@@ -177,6 +177,11 @@ services:
     environment:
       NODE_ENV: development
       PORT: 3006
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: evdms
+      DB_USER: evdms_user
+      DB_PASSWORD: evdms_password
       RABBITMQ_URL: amqp://evdms_user:evdms_password@rabbitmq:5672
       REDIS_URL: redis://redis:6379
       SMTP_HOST: smtp.gmail.com
@@ -184,6 +189,7 @@ services:
       SMTP_USER: your-email@gmail.com
       SMTP_PASS: your-app-password
     depends_on:
+      - postgres
       - rabbitmq
       - redis
     networks:
