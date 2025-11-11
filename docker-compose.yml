@@ -56,20 +56,20 @@ services:
 
   # Microservices
   auth-service:
-    build: ./services/auth-service
+    build: ./auth-service
     ports:
       - "3001:3001"
     environment:
-      NODE_ENV: development
-      PORT: 3001
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: evdms
-      DB_USER: evdms_user
-      DB_PASSWORD: evdms_password
-      REDIS_URL: redis://redis:6379
-      JWT_SECRET: your-jwt-secret-key
-      JWT_EXPIRES_IN: 24h
+      SPRING_PROFILES_ACTIVE: docker
+      SERVER_PORT: 3001
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/evdms
+      SPRING_DATASOURCE_USERNAME: evdms_user
+      SPRING_DATASOURCE_PASSWORD: evdms_password
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      SECURITY_JWT_SECRET: your-jwt-secret-key-change-in-production
+      SECURITY_JWT_ACCESS_TOKEN_EXPIRY: 900000
+      SECURITY_JWT_REFRESH_TOKEN_EXPIRY: 604800000
     depends_on:
       - postgres
       - redis
@@ -104,16 +104,16 @@ services:
     ports:
       - "3003:3003"
     environment:
-      PORT: 3003
+      SPRING_PROFILES_ACTIVE: docker
+      SERVER_PORT: 3003
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/evdms
       SPRING_DATASOURCE_USERNAME: evdms_user
       SPRING_DATASOURCE_PASSWORD: evdms_password
-      JPA_DDL_AUTO: update
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: evdms_user
-      RABBITMQ_PASSWORD: evdms_password
-      JWT_SECRET: your-jwt-secret-key
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: evdms_user
+      SPRING_RABBITMQ_PASSWORD: evdms_password
+      JWT_SECRET: your-jwt-secret-key-change-in-production
     depends_on:
       - postgres
       - rabbitmq
