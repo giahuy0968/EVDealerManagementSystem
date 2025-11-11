@@ -1,13 +1,4 @@
 package com.example.customer_service;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-@SpringBootApplication
-public class CustomerServiceApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(CustomerServiceApplication.class, args);
-	}
-
-}
+// Placeholder file to avoid stray empty compilation unit. The real application
+// entrypoint is com.evdms.customerservice.CustomerServiceApplication.
