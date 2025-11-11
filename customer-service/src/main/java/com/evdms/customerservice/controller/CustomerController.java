@@ -90,9 +90,13 @@ public class CustomerController {
 
     @PostMapping("/{id}/notes")
     @PreAuthorize("hasAnyAuthority('ADMIN','DEALER_MANAGER','DEALER_STAFF','USER')")
-    public CustomerInteraction addNote(@PathVariable UUID id, @RequestBody String notes) {
+    public CustomerInteraction addNote(@PathVariable UUID id, @RequestBody(required = false) String notes) {
         UUID staffId = AuthUtil.getCurrentUserId();
-        return service.addNote(id, staffId, notes);
+        // Ensure staffId is not null
+        if (staffId == null) {
+            throw new IllegalStateException("Unable to get user ID from JWT token");
+        }
+        return service.addNote(id, staffId, notes != null ? notes : "");
     }
 
     @GetMapping("/{id}/orders")

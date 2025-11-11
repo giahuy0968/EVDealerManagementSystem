@@ -54,13 +54,14 @@ Invoke-Test "API Health endpoint" {
     Write-Host "OK - $($response.StatusCode)" -ForegroundColor Green
 }
 
-# 3: Register (auth-service)
+# 3: Register (auth-service) - Register with ADMIN role
 Invoke-Test "Register user (auth-service)" {
 $registerBody = @{
     username = $testUsername
     email = $testEmail
     password = $testPassword
-    fullName = "Customer Test User"
+    fullName = "Customer Test User Admin"
+    role = "ADMIN"
 } | ConvertTo-Json
     $response = Invoke-WebRequest -Uri "$authBase/register" -Method POST -Body $registerBody -ContentType "application/json" -ErrorAction Stop
     $data = $response.Content | ConvertFrom-Json
@@ -231,17 +232,11 @@ Invoke-Test "Change Lead Status" {
     Write-Host "OK - Status changed" -ForegroundColor Green
 }
 
-# 15: Assign Lead to Staff (may require elevated role)
+# 18: Assign Lead to Staff (now with ADMIN role)
 Invoke-Test "Assign Lead to Staff" {
     $headers = @{ "Authorization" = "Bearer $global:accessToken" }
-    try {
-        $null = Invoke-WebRequest -Uri "$csBase/leads/$($global:leadId)/assign?staffId=$($global:userId)" -Method PUT -Headers $headers -ErrorAction Stop
-        Write-Host "OK - Assigned" -ForegroundColor Green
-    } catch {
-        $code = 0; try { $code = [int]$_.Exception.Response.StatusCode } catch {}
-        if ($code -eq 403) { $script:skippedTests++; Write-Host "BO QUA - Can quyen DEALER_MANAGER/ADMIN" -ForegroundColor Yellow }
-        else { throw }
-    }
+    $null = Invoke-WebRequest -Uri "$csBase/leads/$($global:leadId)/assign?staffId=$($global:userId)" -Method PUT -Headers $headers -ErrorAction Stop
+    Write-Host "OK - Assigned" -ForegroundColor Green
 }
 
 # 16: Convert Lead to Customer
@@ -369,14 +364,10 @@ Invoke-Test "Get Feedback by ID" {
 Invoke-Test "Resolve Feedback" {
     if (-not $global:feedbackId) { $script:skippedTests++; throw "Skip counting" }
     $headers = @{ "Authorization" = "Bearer $global:accessToken" }
-    $respText = [uri]::EscapeDataString("Cam on phan hoi!")
-    try {
-        $response = Invoke-WebRequest -Uri "$csBase/feedbacks/$($global:feedbackId)/resolve?resolvedBy=$($global:userId)&response=$respText" -Method PUT -Headers $headers -ErrorAction Stop
-        if ($response.StatusCode -ne 200) { throw "Unexpected status" }
-    } catch {
-        $code = 0; try { $code = [int]$_.Exception.Response.StatusCode } catch {}
-        if ($code -eq 403) { $script:skippedTests++; Write-Host "BO QUA - Can quyen quan ly" -ForegroundColor Yellow } else { throw }
-    }
+    $respText = "Cam on phan hoi"
+    # Removed skip logic - now with ADMIN role
+    $response = Invoke-WebRequest -Uri "$csBase/feedbacks/$($global:feedbackId)/resolve?resolvedBy=$($global:userId)&response=$respText" -Method PUT -Headers $headers
+    if ($response.StatusCode -ne 200) { throw "Unexpected status" }
 }
 
 Invoke-Test "Submit Complaint" {
@@ -389,51 +380,35 @@ Invoke-Test "Submit Complaint" {
         priority = "HIGH"
         status = "OPEN"
     } | ConvertTo-Json
-    try {
-        $response = Invoke-WebRequest -Uri "$csBase/complaints" -Method POST -Headers $headers -Body $body -ErrorAction Stop
-        $cp = $response.Content | ConvertFrom-Json
-        $global:complaintId = $cp.id
-        if (-not $global:complaintId) { throw "No complaintId" }
-    } catch {
-        $code = 0; try { $code = [int]$_.Exception.Response.StatusCode } catch {}
-        if ($code -eq 403 -or $code -eq 404) { $script:skippedTests++; Write-Host "BO QUA - Can quyen/hoac API chua co" -ForegroundColor Yellow } else { throw }
-    }
+    # Removed skip logic - now with ADMIN role
+    $response = Invoke-WebRequest -Uri "$csBase/complaints" -Method POST -Headers $headers -Body $body
+    $cp = $response.Content | ConvertFrom-Json
+    $global:complaintId = $cp.id
+    if (-not $global:complaintId) { throw "No complaintId" }
 }
 
 Invoke-Test "List Complaints" {
     if (-not $global:complaintId) { $script:skippedTests++; throw "Skip counting" }
     $headers = @{ "Authorization" = "Bearer $global:accessToken" }
-    try {
-        $response = Invoke-WebRequest -Uri "$csBase/complaints" -Headers $headers -ErrorAction Stop
-        if ($response.StatusCode -ne 200) { throw "Unexpected status" }
-    } catch {
-        $code = 0; try { $code = [int]$_.Exception.Response.StatusCode } catch {}
-        if ($code -eq 403) { $script:skippedTests++; Write-Host "BO QUA - Can quyen quan ly" -ForegroundColor Yellow } else { throw }
-    }
+    # Removed skip logic - now with ADMIN role
+    $response = Invoke-WebRequest -Uri "$csBase/complaints" -Headers $headers
+    if ($response.StatusCode -ne 200) { throw "Unexpected status" }
 }
 
 Invoke-Test "Resolve Complaint" {
     if (-not $global:complaintId) { $script:skippedTests++; throw "Skip counting" }
     $headers = @{ "Authorization" = "Bearer $global:accessToken" }
-    try {
-        $response = Invoke-WebRequest -Uri "$csBase/complaints/$($global:complaintId)/resolve?resolution=Da xu ly" -Method PUT -Headers $headers -ErrorAction Stop
-        if ($response.StatusCode -ne 200) { throw "Unexpected status" }
-    } catch {
-        $code = 0; try { $code = [int]$_.Exception.Response.StatusCode } catch {}
-        if ($code -eq 403) { $script:skippedTests++; Write-Host "BO QUA - Can quyen quan ly" -ForegroundColor Yellow } else { throw }
-    }
+    # Removed skip logic - now with ADMIN role
+    $response = Invoke-WebRequest -Uri "$csBase/complaints/$($global:complaintId)/resolve?resolution=Da xu ly" -Method PUT -Headers $headers
+    if ($response.StatusCode -ne 200) { throw "Unexpected status" }
 }
 
 # === Segmentation ===
 Invoke-Test "Get Customer Segments" {
     $headers = @{ "Authorization" = "Bearer $global:accessToken" }
-    try {
-        $response = Invoke-WebRequest -Uri "$csBase/customers/segments" -Headers $headers -ErrorAction Stop
-        if ($response.StatusCode -ne 200) { throw "Unexpected status" }
-    } catch {
-        $code = 0; try { $code = [int]$_.Exception.Response.StatusCode } catch {}
-        if ($code -eq 403 -or $code -eq 404) { $script:skippedTests++; Write-Host "BO QUA - Can quyen/hoac API chua co" -ForegroundColor Yellow } else { throw }
-    }
+    # Removed skip logic - now with ADMIN role
+    $response = Invoke-WebRequest -Uri "$csBase/customers/segments" -Headers $headers
+    if ($response.StatusCode -ne 200) { throw "Unexpected status" }
 }
 
 Invoke-Test "Get Customer Score" {
