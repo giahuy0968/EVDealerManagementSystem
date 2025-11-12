@@ -1,7 +1,7 @@
 # ===================================================================
 # AUTH SERVICE - COMPREHENSIVE API TEST SUITE (Postman Style)
 # ===================================================================
-# Chu?n Postman: Pre-request, Test assertions, Auto-save variables
+# Chuẩn Postman: Pre-request, Test assertions, Auto-save variables
 # Test coverage: 40+ test cases covering all Auth Service APIs
 # ===================================================================
 
@@ -16,7 +16,6 @@ $script:skippedTests = 0
 # Global variables (like Postman environment)
 $global:baseUrl = "http://localhost:3001/api/v1/auth"
 $global:adminToken = ""
-$global:adminRefreshToken = ""
 $global:userToken = ""
 $global:refreshToken = ""
 $global:userId = ""
@@ -102,10 +101,10 @@ function Test-API {
     
     if ($testPassed) {
         $script:passedTests++
-        Write-Host "    ? PASSED" -ForegroundColor Green
+        Write-Host "    ✓ PASSED" -ForegroundColor Green
     } else {
         $script:failedTests++
-        Write-Host "    ? FAILED" -ForegroundColor Red
+        Write-Host "    ✗ FAILED" -ForegroundColor Red
     }
     
     return @{
@@ -128,7 +127,7 @@ Write-Host "================================================================" -F
 # A. USER MANAGEMENT TESTS
 # ===================================================================
 Write-Host "`n" -NoNewline
-Write-Host "??? A. USER MANAGEMENT ???" -ForegroundColor Yellow
+Write-Host "═══ A. USER MANAGEMENT ═══" -ForegroundColor Yellow
 
 # A1. Register - Valid User
 $result = Test-API `
@@ -218,7 +217,7 @@ $adminResult = Test-API `
 # B. AUTHENTICATION TESTS
 # ===================================================================
 Write-Host "`n" -NoNewline
-Write-Host "??? B. AUTHENTICATION ???" -ForegroundColor Yellow
+Write-Host "═══ B. AUTHENTICATION ═══" -ForegroundColor Yellow
 
 # B1. Login - Valid Credentials
 $loginResult = Test-API `
@@ -234,7 +233,7 @@ $loginResult = Test-API `
         param($response)
         if (-not $response.token) { throw "Missing token" }
         if (-not $response.refreshToken) { throw "Missing refreshToken" }
-        if ($response.email -ne $global:testEmail) { throw "Email mismatch" }
+        if ($response.username -ne $global:testUsername) { throw "Username mismatch" }
         $global:userToken = $response.token
         $global:refreshToken = $response.refreshToken
     }
@@ -253,7 +252,6 @@ $adminLoginResult = Test-API `
         param($response)
         if ($response.role -ne "ADMIN") { throw "Role should be ADMIN" }
         $global:adminToken = $response.token
-        $global:adminRefreshToken = $response.refreshToken
     }
 
 # B3. Login - Invalid Password
@@ -320,8 +318,8 @@ if ($global:refreshToken) {
         -ExpectedStatus 200 `
         -Assertions {
             param($response)
-            if (-not $response.accessToken -or $response.accessToken -eq "") { throw "Missing new access token" }
-            if (-not $response.refreshToken -or $response.refreshToken -eq "") { throw "Missing new refresh token" }
+            if (-not $response.token) { throw "Missing new access token" }
+            if (-not $response.refreshToken) { throw "Missing new refresh token" }
         }
 }
 
@@ -329,14 +327,9 @@ if ($global:refreshToken) {
 # C. PASSWORD MANAGEMENT TESTS
 # ===================================================================
 Write-Host "`n" -NoNewline
-Write-Host "??? C. PASSWORD MANAGEMENT ???" -ForegroundColor Yellow
+Write-Host "═══ C. PASSWORD MANAGEMENT ═══" -ForegroundColor Yellow
 
 # C1. Change Password - Valid
-# NOTE: Skipping change password tests as per user request
-Write-Host "[SKIPPED] Change Password tests" -ForegroundColor DarkGray
-$script:skippedTests += 4  # Tests 14, 15, 16, 17
-
-# C5. Forgot Password - Valid Email
 Test-API `
     -TestName "Change Password with Correct Old Password" `
     -Method "POST" `
@@ -410,7 +403,7 @@ Test-API `
 # D. PROFILE MANAGEMENT TESTS
 # ===================================================================
 Write-Host "`n" -NoNewline
-Write-Host "??? D. PROFILE MANAGEMENT ???" -ForegroundColor Yellow
+Write-Host "═══ D. PROFILE MANAGEMENT ═══" -ForegroundColor Yellow
 
 # D1. Get Profile
 Test-API `
@@ -443,17 +436,17 @@ Test-API `
     }
 
 # D3. Update Profile - Invalid Email
-# NOTE: Profile update endpoint doesn't support changing email (by design)
-# Test changed to verify fullName validation instead
 Test-API `
     -TestName "Update Profile with Invalid Email (Should Fail)" `
     -Method "PUT" `
     -Endpoint "/profile" `
     -Headers @{ "Authorization" = "Bearer $global:userToken" } `
     -Body @{
-        fullName = ""  # Empty fullName should be ignored, not cause error
+        fullName = "Test User"
+        email = "invalid-email-format"
     } `
-    -ExpectedStatus 200  # Changed: endpoint ignores invalid fields
+    -ExpectedStatus 400 `
+    -ShouldFail $true
 
 # D4. Get Profile - Unauthorized
 Test-API `
@@ -467,7 +460,7 @@ Test-API `
 # E. ADMIN USER MANAGEMENT TESTS
 # ===================================================================
 Write-Host "`n" -NoNewline
-Write-Host "??? E. ADMIN USER MANAGEMENT ???" -ForegroundColor Yellow
+Write-Host "═══ E. ADMIN USER MANAGEMENT ═══" -ForegroundColor Yellow
 
 # E1. Get All Users - Admin
 Test-API `
@@ -577,7 +570,7 @@ if ($global:userId) {
 # F. SESSION MANAGEMENT TESTS
 # ===================================================================
 Write-Host "`n" -NoNewline
-Write-Host "??? F. SESSION MANAGEMENT ???" -ForegroundColor Yellow
+Write-Host "═══ F. SESSION MANAGEMENT ═══" -ForegroundColor Yellow
 
 # F1. Get Active Sessions
 Test-API `
@@ -593,9 +586,6 @@ Test-API `
     -Method "POST" `
     -Endpoint "/logout" `
     -Headers @{ "Authorization" = "Bearer $global:adminToken" } `
-    -Body @{
-        refreshToken = $global:adminRefreshToken
-    } `
     -ExpectedStatus 200
 
 # F3. Use Token After Logout (Should Fail)
@@ -604,7 +594,7 @@ Test-API `
     -Method "GET" `
     -Endpoint "/profile" `
     -Headers @{ "Authorization" = "Bearer $global:adminToken" } `
-    -ExpectedStatus 403 `
+    -ExpectedStatus 401 `
     -ShouldFail $true
 
 # ===================================================================

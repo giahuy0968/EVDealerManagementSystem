@@ -1,5 +1,6 @@
 package com.evdms.authservice.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,8 @@ import com.evdms.authservice.dto.*;
 import com.evdms.authservice.entity.User;
 import com.evdms.authservice.service.AuthService;
 import com.evdms.authservice.service.TokenBlacklistService;
+import com.evdms.authservice.service.JwtUtil;
+import com.evdms.authservice.repository.UserRepository;
 
 import java.util.Map;
 import java.util.UUID;
@@ -19,10 +22,16 @@ public class AuthController {
     private AuthService authService;
 
     @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private TokenBlacklistService tokenBlacklistService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         User user = authService.register(request);
         return ResponseEntity.ok(Map.of(
                 "message", "Registration successful",
@@ -30,7 +39,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request,
+            HttpServletRequest httpRequest) {
+        // Set IP address for rate limiting
+        request.setIpAddress(httpRequest.getRemoteAddr());
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
@@ -62,10 +74,35 @@ public class AuthController {
     @GetMapping("/verify")
     public ResponseEntity<?> verifyToken(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         String token = (authHeader != null && authHeader.startsWith("Bearer ")) ? authHeader.substring(7) : null;
-        boolean isValid = token != null && authService.verifyToken(token);
-        return ResponseEntity.ok(Map.of(
-                "valid", isValid,
-                "message", isValid ? "Token is valid" : "Token is invalid or expired"));
+
+        if (token == null || token.isBlank()) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "valid", false,
+                    "message", "No token provided"));
+        }
+
+        boolean isValid = authService.verifyToken(token);
+
+        if (isValid) {
+            try {
+                String email = jwtUtil.extractEmail(token);
+                User user = userRepository.findByEmail(email).orElse(null);
+                if (user != null) {
+                    return ResponseEntity.ok(Map.of(
+                            "valid", true,
+                            "message", "Token is valid",
+                            "email", user.getEmail(),
+                            "username", user.getUsername(),
+                            "role", user.getRole() != null ? user.getRole().toString() : "USER"));
+                }
+            } catch (Exception e) {
+                // Token invalid
+            }
+        }
+
+        return ResponseEntity.status(401).body(Map.of(
+                "valid", false,
+                "message", "Token is invalid or expired"));
     }
 
     @PostMapping("/verify-email")

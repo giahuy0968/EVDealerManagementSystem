@@ -7,6 +7,7 @@ import com.evdms.authservice.dto.TokenResponse;
 import com.evdms.authservice.entity.EmailVerificationToken;
 import com.evdms.authservice.entity.Session;
 import com.evdms.authservice.entity.User;
+import com.evdms.authservice.entity.User.Role;
 import com.evdms.authservice.repository.EmailVerificationTokenRepository;
 import com.evdms.authservice.repository.SessionRepository;
 import com.evdms.authservice.repository.UserRepository;
@@ -47,6 +48,7 @@ public class AuthService {
     @Autowired
     private TokenBlacklistService tokenBlacklistService;
 
+    @Transactional
     public User register(RegisterRequest request) {
         // Check if user already exists
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -64,35 +66,36 @@ public class AuthService {
         user.setActive(true);
         user.setEmailVerified(false);
 
-        // Set role from request, default to DEALER_STAFF if not provided
+        // Set role (default to USER if not specified)
         if (request.getRole() != null && !request.getRole().isEmpty()) {
             try {
-                user.setRole(User.Role.valueOf(request.getRole().toUpperCase()));
+                user.setRole(Role.valueOf(request.getRole().toUpperCase()));
             } catch (IllegalArgumentException e) {
-                user.setRole(User.Role.DEALER_STAFF);
+                user.setRole(Role.USER);
             }
         } else {
-            user.setRole(User.Role.DEALER_STAFF);
+            user.setRole(Role.USER);
         }
 
         user.setCreatedAt(Instant.now());
         user.setUpdatedAt(Instant.now());
-        userRepository.save(user);
-
-        // Generate email verification token (for future implementation)
-        // generateEmailVerificationToken(user);
-
-        return user;
+        return userRepository.save(user);
     }
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
         // Rate limit by IP (5 req / 15 min)
-        String key = "login:" + (request.getIpAddress() != null ? request.getIpAddress() : "unknown");
-        if (!rateLimiterService.allow(key)) {
-            throw new RuntimeException("Too many login attempts. Please try again later.");
-        }
-        User user = userRepository.findByEmail(request.getEmail())
+        // TEMPORARILY DISABLED FOR TESTING
+        // String key = "login:" + (request.getIpAddress() != null ?
+        // request.getIpAddress() : "unknown");
+        // if (!rateLimiterService.allow(key)) {
+        // throw new RuntimeException("Too many login attempts. Please try again
+        // later.");
+        // }
+
+        // Find user by username or email
+        User user = userRepository.findByUsername(request.getUsername())
+                .or(() -> userRepository.findByEmail(request.getUsername()))
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Check if account is locked

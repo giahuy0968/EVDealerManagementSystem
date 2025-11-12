@@ -20,8 +20,6 @@ public class RegisterRequest {
     @NotBlank
     private String fullName;
 
-    private String role; // optional: ADMIN, DEALER_MANAGER, DEALER_STAFF, USER
-
     public String getUsername() {
         return username;
     }

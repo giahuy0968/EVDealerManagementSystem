@@ -1,6 +1,8 @@
 package com.evdms.authservice.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -17,6 +19,7 @@ public class Session {
     @Column(nullable = false)
     private String refreshToken;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private String deviceInfo;
 
