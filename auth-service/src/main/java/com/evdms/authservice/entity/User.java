@@ -175,6 +175,6 @@ public class User {
     }
 
     public enum Role {
-        ADMIN, DEALER_MANAGER, DEALER_STAFF, EVM_STAFF
+        USER, ADMIN, DEALER_MANAGER, DEALER_STAFF, EVM_STAFF
     }
 }

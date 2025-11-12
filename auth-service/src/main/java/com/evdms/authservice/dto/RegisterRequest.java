@@ -20,6 +20,8 @@ public class RegisterRequest {
     @NotBlank
     private String fullName;
 
+    private String role; // Optional, defaults to DEALER_STAFF
+
     public String getUsername() {
         return username;
     }
@@ -50,5 +52,13 @@ public class RegisterRequest {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }
