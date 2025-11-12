@@ -1,1 +1,0 @@
-{ "title": "Lead mới", "body": "Lead {{lead_name}} đã được phân công", "data": { "leadId": "{{lead_id}}" } }

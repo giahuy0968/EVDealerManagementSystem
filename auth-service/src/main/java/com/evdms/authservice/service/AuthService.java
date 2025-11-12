@@ -63,6 +63,18 @@ public class AuthService {
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setActive(true);
         user.setEmailVerified(false);
+        
+        // Set role from request, default to DEALER_STAFF if not provided
+        if (request.getRole() != null && !request.getRole().isEmpty()) {
+            try {
+                user.setRole(User.Role.valueOf(request.getRole().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                user.setRole(User.Role.DEALER_STAFF);
+            }
+        } else {
+            user.setRole(User.Role.DEALER_STAFF);
+        }
+        
         user.setCreatedAt(Instant.now());
         user.setUpdatedAt(Instant.now());
         userRepository.save(user);

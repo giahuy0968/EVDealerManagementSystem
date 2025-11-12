@@ -1,1 +1,0 @@
-Xe của bạn đã sẵn sàng giao. Mã đơn: {{order_number}}. Vui lòng liên hệ để sắp xếp nhận xe.
