@@ -58,23 +58,26 @@ services:
   auth-service:
     build: ./auth-service
     ports:
-      - "3001:3001"
+      - "${AUTH_SERVICE_PORT:-3001}:3001"
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      # Profile: 'docker' (local DB) or 'supabase' (cloud DB)
+      SPRING_PROFILES_ACTIVE: ${AUTH_PROFILE:-docker}
       SERVER_PORT: 3001
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/evdms
-      SPRING_DATASOURCE_USERNAME: evdms_user
-      SPRING_DATASOURCE_PASSWORD: evdms_password
-      SPRING_REDIS_HOST: redis
-      SPRING_REDIS_PORT: 6379
-      SECURITY_JWT_SECRET: your-jwt-secret-key-change-in-production
-      SECURITY_JWT_ACCESS_TOKEN_EXPIRY: 900000
-      SECURITY_JWT_REFRESH_TOKEN_EXPIRY: 604800000
+      
+      # Redis
+      SPRING_REDIS_HOST: ${REDIS_HOST:-redis}
+      SPRING_REDIS_PORT: ${REDIS_PORT:-6379}
+      
+      # JWT
+      SECURITY_JWT_SECRET: ${JWT_SECRET}
+      SECURITY_JWT_ACCESS_TOKEN_EXPIRY: ${JWT_ACCESS_TOKEN_EXPIRY:-900000}
+      SECURITY_JWT_REFRESH_TOKEN_EXPIRY: ${JWT_REFRESH_TOKEN_EXPIRY:-604800000}
     depends_on:
       - postgres
       - redis
     networks:
       - evdms-network
+    restart: unless-stopped
 
   dealer-service:
     build: ./services/dealer-service
@@ -102,23 +105,26 @@ services:
   customer-service:
     build: ./customer-service
     ports:
-      - "3003:3003"
+      - "${CUSTOMER_SERVICE_PORT:-3003}:3003"
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      # Profile: 'docker' (local DB) or 'supabase' (cloud DB)
+      SPRING_PROFILES_ACTIVE: ${CUSTOMER_PROFILE:-docker}
       SERVER_PORT: 3003
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/evdms
-      SPRING_DATASOURCE_USERNAME: evdms_user
-      SPRING_DATASOURCE_PASSWORD: evdms_password
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: evdms_user
-      SPRING_RABBITMQ_PASSWORD: evdms_password
-      JWT_SECRET: your-jwt-secret-key-change-in-production
+      
+      # RabbitMQ
+      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      SPRING_RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER:-evdms_user}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-evdms_password}
+      
+      # JWT
+      SECURITY_JWT_SECRET: ${JWT_SECRET}
     depends_on:
       - postgres
       - rabbitmq
     networks:
       - evdms-network
+    restart: unless-stopped
 
   manufacturer-service:
     build: ./services/manufacturer-service
