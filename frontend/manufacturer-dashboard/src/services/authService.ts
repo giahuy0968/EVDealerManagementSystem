@@ -10,6 +10,19 @@ import type {
 export const authService = {
   // Đăng nhập
   login: async (credentials: LoginRequestDTO): Promise<LoginResponseDTO> => {
+    const demoUsers = [
+      { email: 'demo@manufacturer.com', password: 'demo123', userInfo: { id: 'm-1', username: 'Manufacturer Demo', email: 'demo@manufacturer.com', role: 'EVM_STAFF' } }
+    ]
+
+    const found = demoUsers.find(u => u.email === (credentials.email || credentials.username) && credentials.password === u.password)
+    if (found) {
+      return {
+        token: 'demo-token-' + found.userInfo.id,
+        refreshToken: 'demo-refresh-' + found.userInfo.id,
+        userInfo: found.userInfo as any
+      }
+    }
+
     const response = await api.post('/api/v1/auth/login', credentials)
     return response.data
   },

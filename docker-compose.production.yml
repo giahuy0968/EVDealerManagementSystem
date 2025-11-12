@@ -1,0 +1,138 @@
+# ===========================================
+# DOCKER COMPOSE CHO AUTH-SERVICE VÀ CUSTOMER-SERVICE
+# CHỈ 2 services này + dependencies (RabbitMQ, Redis)
+# ===========================================
+version: "3.9"
+
+services:
+  # ========================================
+  # RABBITMQ MESSAGE BROKER
+  # ========================================
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: evdms-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - evdms-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ========================================
+  # REDIS CACHE
+  # ========================================
+  redis:
+    image: redis:7-alpine
+    container_name: evdms-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - evdms-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ========================================
+  # AUTH SERVICE (Port 3001)
+  # ========================================
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    image: evdms-auth-service:latest
+    container_name: evdms-auth-service
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0
+      SPRING_DATASOURCE_USERNAME: postgres.grgbbhzjlddgocgyhekd
+      SPRING_DATASOURCE_PASSWORD: Abc@123456!
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: false
+      SECURITY_JWT_SECRET: this-is-a-very-long-secret-key-for-jwt-token-validation-minimum-256-bits-required
+      SECURITY_JWT_ACCESS_TOKEN_EXPIRY: 900000
+      SECURITY_JWT_REFRESH_TOKEN_EXPIRY: 604800000
+      SPRING_RABBITMQ_ENABLED: true
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+      SERVER_PORT: 3001
+      SPRING_APPLICATION_NAME: auth-service
+    networks:
+      - evdms-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+  # ========================================
+  # CUSTOMER SERVICE (Port 3003)
+  # ========================================
+  customer-service:
+    build:
+      context: ./customer-service
+      dockerfile: Dockerfile
+    image: evdms-customer-service:latest
+    container_name: evdms-customer-service
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "3003:3003"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0
+      SPRING_DATASOURCE_USERNAME: postgres.grgbbhzjlddgocgyhekd
+      SPRING_DATASOURCE_PASSWORD: Abc@123456!
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: false
+      SECURITY_JWT_SECRET: this-is-a-very-long-secret-key-for-jwt-token-validation-minimum-256-bits-required
+      SPRING_RABBITMQ_ENABLED: true
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+      SERVER_PORT: 3003
+      SPRING_APPLICATION_NAME: customer-service
+    networks:
+      - evdms-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+volumes:
+  rabbitmq_data:
+  redis_data:
+
+networks:
+  evdms-network:
+    driver: bridge

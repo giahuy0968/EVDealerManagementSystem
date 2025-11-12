@@ -1,30 +1,37 @@
-FROM node:18-alpine
+# ==================================
+# STAGE 1: Build stage với Maven
+# ==================================
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy pom.xml và tải dependencies
+COPY pom.xml ./
+RUN mvn dependency:go-offline -B
 
-# Install dependencies
-RUN npm ci --only=production
+# Copy source code và build JAR
+COPY src ./src
+RUN mvn clean package -DskipTests -B
 
-# Copy source code
-COPY . .
+# ==================================
+# STAGE 2: Runtime stage (chạy app)
+# ==================================
+FROM eclipse-temurin:21-jre-jammy
 
-# Build the application
-RUN npm run build
+WORKDIR /app
 
-# Expose port
-EXPOSE 3001
+RUN groupadd -r authservice && useradd -r -g authservice authservice
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3001/health || exit 1
+COPY --from=build /app/target/*.jar app.jar
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S authservice -u 1001
+RUN chown -R authservice:authservice /app
 USER authservice
 
-# Start the application
-CMD ["npm", "start"]
+EXPOSE 3001
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:3001/actuator/health || exit 1
+
+ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

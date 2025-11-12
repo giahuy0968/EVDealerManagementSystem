@@ -10,6 +10,21 @@ import type {
 export const authService = {
   // Đăng nhập
   login: async (credentials: LoginRequestDTO): Promise<LoginResponseDTO> => {
+    // Demo admin credentials
+    if ((credentials.email === 'admin@evdms.com' || credentials.username === 'admin@evdms.com') && credentials.password === 'admin123') {
+      const user = {
+        id: 'a-1',
+        username: 'Admin Demo',
+        email: 'admin@evdms.com',
+        role: 'ADMIN'
+      }
+      return {
+        token: 'admin-demo-token',
+        refreshToken: 'admin-demo-refresh',
+        userInfo: user as any
+      }
+    }
+
     const response = await api.post('/api/v1/auth/login', credentials)
     return response.data
   },
