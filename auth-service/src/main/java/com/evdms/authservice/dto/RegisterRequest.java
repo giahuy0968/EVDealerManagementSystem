@@ -20,6 +20,8 @@ public class RegisterRequest {
     @NotBlank
     private String fullName;
 
+    private String role;
+
     public String getUsername() {
         return username;
     }

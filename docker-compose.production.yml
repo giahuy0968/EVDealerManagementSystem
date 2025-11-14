@@ -68,6 +68,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0
       SPRING_DATASOURCE_USERNAME: postgres.grgbbhzjlddgocgyhekd
       SPRING_DATASOURCE_PASSWORD: Abc@123456!
+      SPRING_DATASOURCE_DRIVER: org.postgresql.Driver
+      HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: false
       SECURITY_JWT_SECRET: this-is-a-very-long-secret-key-for-jwt-token-validation-minimum-256-bits-required
@@ -113,7 +115,7 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: false
       SECURITY_JWT_SECRET: this-is-a-very-long-secret-key-for-jwt-token-validation-minimum-256-bits-required
-      SPRING_RABBITMQ_ENABLED: true
+      SPRING_RABBITMQ_ENABLED: false
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest

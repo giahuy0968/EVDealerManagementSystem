@@ -22,6 +22,12 @@ public class User {
 
     private String fullName;
 
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -76,6 +82,28 @@ public class User {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
+        // Auto-populate firstName and lastName from fullName
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            String[] parts = fullName.trim().split("\\s+", 2);
+            this.firstName = parts[0];
+            this.lastName = parts.length > 1 ? parts[1] : "";
+        }
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public boolean isActive() {

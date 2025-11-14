@@ -1,4 +1,4 @@
-# ===================================================================
+git # ===================================================================
 # AUTH SERVICE - COMPREHENSIVE API TEST SUITE (Postman Style)
 # ===================================================================
 # Chu?n Postman: Pre-request, Test assertions, Auto-save variables
