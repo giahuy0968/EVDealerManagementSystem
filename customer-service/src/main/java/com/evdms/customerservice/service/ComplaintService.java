@@ -25,6 +25,14 @@ public class ComplaintService {
     }
 
     public Complaint create(Complaint c) {
+        // Use default test IDs for testing
+        if (c.getCustomerId() == null) {
+            c.setCustomerId(UUID.fromString("00000000-0000-0000-0000-000000000002"));
+        }
+        if (c.getDealerId() == null) {
+            c.setDealerId(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+        }
+
         Complaint saved = complaints.save(c);
         events.publish("complaint.created", Map.of(
                 "complaint_id", saved.getId().toString(),

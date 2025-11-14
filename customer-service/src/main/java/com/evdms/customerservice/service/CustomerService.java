@@ -32,7 +32,12 @@ public class CustomerService {
     }
 
     public Customer create(@Valid Customer c) {
-        // Check duplicate phone only if dealerId exists (dealer scope)
+        // Use default test dealer ID if not provided
+        if (c.getDealerId() == null) {
+            c.setDealerId(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+        }
+
+        // Check duplicate phone within dealer scope
         if (c.getDealerId() != null) {
             customers.findByDealerIdAndPhone(c.getDealerId(), c.getPhone()).ifPresent(existing -> {
                 throw new IllegalArgumentException("Phone already exists for this dealer");

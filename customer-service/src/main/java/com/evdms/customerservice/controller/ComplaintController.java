@@ -2,6 +2,7 @@ package com.evdms.customerservice.controller;
 
 import com.evdms.customerservice.entity.Complaint;
 import com.evdms.customerservice.service.ComplaintService;
+import com.evdms.customerservice.dto.ResolveComplaintRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,7 +42,7 @@ public class ComplaintController {
 
     @PutMapping("/{id}/resolve")
     @PreAuthorize("hasAnyAuthority('ADMIN','DEALER_MANAGER')")
-    public Complaint resolve(@PathVariable UUID id, @RequestParam String resolution) {
-        return service.resolve(id, resolution);
+    public Complaint resolve(@PathVariable UUID id, @RequestBody ResolveComplaintRequest request) {
+        return service.resolve(id, request.getResolution());
     }
 }

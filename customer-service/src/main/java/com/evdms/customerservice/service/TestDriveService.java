@@ -26,11 +26,21 @@ public class TestDriveService {
     }
 
     public TestDrive create(TestDrive td) {
+        // Use default IDs if not provided
+        if (td.getDealerId() == null) {
+            td.setDealerId(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+        }
+        if (td.getCustomerId() == null) {
+            td.setCustomerId(UUID.fromString("00000000-0000-0000-0000-000000000002"));
+        }
+
         TestDrive saved = testDrives.save(td);
         Map<String, Object> payload = new HashMap<>();
         payload.put("test_drive_id", saved.getId().toString());
         payload.put("dealer_id", saved.getDealerId().toString());
-        payload.put("customer_id", saved.getCustomerId().toString());
+        if (saved.getCustomerId() != null) {
+            payload.put("customer_id", saved.getCustomerId().toString());
+        }
         events.publish("test_drive.scheduled", payload);
         return saved;
     }

@@ -4,6 +4,7 @@ import com.evdms.customerservice.dto.LeadCreateRequest;
 import com.evdms.customerservice.entity.Customer;
 import com.evdms.customerservice.entity.Lead;
 import com.evdms.customerservice.entity.enums.LeadStatus;
+import com.evdms.customerservice.dto.UpdateStatusRequest;
 import com.evdms.customerservice.service.AuthUtil;
 import com.evdms.customerservice.service.LeadService;
 import jakarta.validation.Valid;
@@ -66,7 +67,8 @@ public class LeadController {
 
     @PutMapping("/{id}/status")
     @PreAuthorize("hasAnyAuthority('ADMIN','DEALER_MANAGER','DEALER_STAFF','USER')")
-    public Lead updateStatus(@PathVariable UUID id, @RequestParam LeadStatus status) {
+    public Lead updateStatus(@PathVariable UUID id, @RequestBody UpdateStatusRequest request) {
+        LeadStatus status = LeadStatus.valueOf(request.getStatus().toUpperCase());
         return service.updateStatus(id, status);
     }
 

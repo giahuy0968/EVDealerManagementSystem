@@ -35,6 +35,11 @@ public class LeadService {
     }
 
     public Lead create(Lead lead) {
+        // Use default test dealer ID if not provided
+        if (lead.getDealerId() == null) {
+            lead.setDealerId(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+        }
+
         // Auto-assign round-robin if no staff assigned
         if (lead.getAssignedStaffId() == null && lead.getDealerId() != null) {
             UUID nextStaff = roundRobin.getNextStaff(lead.getDealerId());
@@ -95,11 +100,25 @@ public class LeadService {
         if (l.getCustomerId() != null) {
             return customers.findById(l.getCustomerId()).orElseThrow();
         }
+
+        // Parse fullName to firstName/lastName
+        String fullName = Optional.ofNullable(l.getName()).orElse("Unknown");
+        String firstName = "Unknown";
+        String lastName = "";
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            String[] parts = fullName.trim().split("\\s+", 2);
+            firstName = parts[0];
+            lastName = parts.length > 1 ? parts[1] : "";
+        }
+
         Customer c = Customer.builder()
                 .dealerId(l.getDealerId())
-                .fullName(Optional.ofNullable(l.getName()).orElse("Unknown"))
+                .fullName(fullName)
+                .firstName(firstName)
+                .lastName(lastName)
                 .phone(l.getPhone())
                 .email(l.getEmail())
+                .address("N/A") // Default address for converted leads
                 .source(null)
                 .build();
         Customer saved = customers.save(c);

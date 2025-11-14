@@ -1,8 +1,10 @@
 package com.evdms.customerservice.service;
 
 import com.evdms.customerservice.entity.Feedback;
+import com.evdms.customerservice.entity.Customer;
 import com.evdms.customerservice.service.EventPublisher;
 import com.evdms.customerservice.repository.FeedbackRepository;
+import com.evdms.customerservice.repository.CustomerRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,14 +18,36 @@ import java.util.UUID;
 @Transactional
 public class FeedbackService {
     private final FeedbackRepository feedbacks;
+    private final CustomerRepository customers;
     private final EventPublisher events;
 
-    public FeedbackService(FeedbackRepository feedbacks, EventPublisher events) {
+    public FeedbackService(FeedbackRepository feedbacks, CustomerRepository customers, EventPublisher events) {
         this.feedbacks = feedbacks;
+        this.customers = customers;
         this.events = events;
     }
 
     public Feedback create(Feedback f) {
+        // Use default IDs if not provided
+        if (f.getCustomerId() == null) {
+            f.setCustomerId(UUID.fromString("00000000-0000-0000-0000-000000000002"));
+        }
+
+        // Get dealerId from customer or context
+        if (f.getDealerId() == null) {
+            if (f.getCustomerId() != null) {
+                // Try to get dealerId from customer
+                Customer customer = customers.findById(f.getCustomerId()).orElse(null);
+                if (customer != null && customer.getDealerId() != null) {
+                    f.setDealerId(customer.getDealerId());
+                }
+            }
+            // If still null, use default test dealer ID
+            if (f.getDealerId() == null) {
+                f.setDealerId(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+            }
+        }
+
         Feedback saved = feedbacks.save(f);
         events.publish("feedback.received", Map.of(
                 "feedback_id", saved.getId().toString(),

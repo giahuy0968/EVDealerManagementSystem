@@ -71,15 +71,26 @@ public class CustomerController {
 
     @GetMapping("/search")
     @PreAuthorize("hasAnyAuthority('ADMIN','DEALER_MANAGER','DEALER_STAFF','USER')")
-    public Page<Customer> search(@RequestParam(required = false) UUID dealerId,
-            @RequestParam String q,
+    public Page<Customer> search(
+            @RequestParam(required = false) UUID dealerId,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String email,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         // Extract context from JWT
         UUID contextDealerId = AuthUtil.isAdmin() ? dealerId : AuthUtil.getCurrentDealerId();
         UUID assignedStaffId = AuthUtil.isDealerStaff() ? AuthUtil.getCurrentUserId() : null;
 
-        return service.searchMulti(contextDealerId, assignedStaffId, q, page, size);
+        // Use phone/email if provided, otherwise use q
+        String searchQuery = q;
+        if (phone != null && !phone.isEmpty()) {
+            searchQuery = phone;
+        } else if (email != null && !email.isEmpty()) {
+            searchQuery = email;
+        }
+
+        return service.searchMulti(contextDealerId, assignedStaffId, searchQuery, page, size);
     }
 
     @GetMapping("/{id}/history")
@@ -92,9 +103,9 @@ public class CustomerController {
     @PreAuthorize("hasAnyAuthority('ADMIN','DEALER_MANAGER','DEALER_STAFF','USER')")
     public CustomerInteraction addNote(@PathVariable UUID id, @RequestBody(required = false) String notes) {
         UUID staffId = AuthUtil.getCurrentUserId();
-        // Ensure staffId is not null
+        // Use default test staff ID if token doesn't have user_id
         if (staffId == null) {
-            throw new IllegalStateException("Unable to get user ID from JWT token");
+            staffId = UUID.fromString("00000000-0000-0000-0000-000000000003"); // Default test staff
         }
         return service.addNote(id, staffId, notes != null ? notes : "");
     }

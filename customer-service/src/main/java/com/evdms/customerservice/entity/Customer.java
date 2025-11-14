@@ -38,6 +38,12 @@ public class Customer {
         @Column(name = "full_name", nullable = false)
         private String fullName;
 
+        @Column(name = "first_name")
+        private String firstName;
+
+        @Column(name = "last_name")
+        private String lastName;
+
         @NotBlank
         @Pattern(regexp = "0[1-9][0-9]{8}")
         @Column(name = "phone", nullable = false)
@@ -91,4 +97,14 @@ public class Customer {
         @Column(name = "deleted", nullable = false)
         @Builder.Default
         private boolean deleted = false;
+
+        // Custom setter to auto-populate firstName and lastName from fullName
+        public void setFullName(String fullName) {
+                this.fullName = fullName;
+                if (fullName != null && !fullName.trim().isEmpty()) {
+                        String[] parts = fullName.trim().split("\\s+", 2);
+                        this.firstName = parts[0];
+                        this.lastName = parts.length > 1 ? parts[1] : "";
+                }
+        }
 }

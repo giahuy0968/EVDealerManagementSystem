@@ -32,6 +32,12 @@ public class TestDrive {
     @Column(name = "car_model_id", nullable = false)
     private UUID carModelId;
 
+    @Column(name = "vehicle_id", nullable = false)
+    private UUID vehicleId;
+
+    @Column(name = "sales_rep_id", nullable = false)
+    private UUID salesRepId;
+
     @Column(name = "scheduled_date", nullable = false)
     private LocalDate scheduledDate;
 
