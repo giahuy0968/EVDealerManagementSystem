@@ -13,8 +13,26 @@ export function createApp() {
   app.set('trust proxy', 1)
   
   // Security & Performance
-  app.use(helmet({ crossOriginEmbedderPolicy: false }))
-  app.use(cors({ origin: true, credentials: true }))
+  // app.use(helmet({ crossOriginEmbedderPolicy: false })) // Temporarily disabled for debugging
+  
+  // CORS - Allow specific origins with credentials
+  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5176').split(',')
+  app.use(cors({ 
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true)
+      
+      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+        callback(null, true)
+      } else {
+        callback(null, true) // Allow all for development
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
+  }))
+  
   app.use(express.json({ limit: '2mb' }))
   app.use(express.urlencoded({ extended: true, limit: '2mb' }))
   

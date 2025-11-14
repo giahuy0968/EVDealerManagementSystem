@@ -10,22 +10,13 @@ import type {
 export const authService = {
   // Đăng nhập
   login: async (credentials: LoginRequestDTO): Promise<LoginResponseDTO> => {
-    // Demo credentials (local UI demo) - return mocked tokens
-    const demoUsers = [
-      { email: 'dealer@evdms.com', password: 'password123', userInfo: { id: 'd-1', username: 'Dealer Demo', email: 'dealer@evdms.com', role: 'DEALER_MANAGER' } },
-      { email: 'staff@evdms.com', password: 'password123', userInfo: { id: 'd-2', username: 'Dealer Staff', email: 'staff@evdms.com', role: 'DEALER_STAFF' } }
-    ]
-
-    const found = demoUsers.find(u => u.email === (credentials.email || credentials.username) && credentials.password === u.password)
-    if (found) {
-      return {
-        token: 'demo-token-' + found.userInfo.id,
-        refreshToken: 'demo-refresh-' + found.userInfo.id,
-        userInfo: found.userInfo as any
-      }
+    // Backend expects 'username' field (can accept email as value)
+    const loginPayload = {
+      username: credentials.email || credentials.username,
+      password: credentials.password
     }
 
-    const response = await api.post('/api/v1/auth/login', credentials)
+    const response = await api.post('/api/v1/auth/login', loginPayload)
     return response.data
   },
 

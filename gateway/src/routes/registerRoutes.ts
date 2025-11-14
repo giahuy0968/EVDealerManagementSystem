@@ -16,6 +16,16 @@ const createProxy = (target: string) =>
     target,
     changeOrigin: true,
     timeout: 30000, // 30 second timeout
+    onProxyReq: (proxyReq, req, res) => {
+      console.log(`[PROXY] ${req.method} ${req.path} -> ${target}${req.path}`)
+    },
+    onProxyRes: (proxyRes, req, res) => {
+      console.log(`[PROXY] ${req.method} ${req.path} <- ${proxyRes.statusCode}`)
+    },
+    onError: (err, req, res) => {
+      console.error(`[PROXY ERROR] ${req.method} ${req.path}:`, err.message)
+      res.status(500).json({ success: false, error: 'Proxy error', message: err.message })
+    },
   })
 
 export function registerRoutes(app: Application) {
