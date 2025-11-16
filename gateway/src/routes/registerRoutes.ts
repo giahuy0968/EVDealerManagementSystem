@@ -32,7 +32,7 @@ export function registerRoutes(app: Application) {
   // Public auth endpoints (login, register, etc.)
   app.use(
     '/api/v1/auth',
-    apiRateLimiter,
+    // apiRateLimiter, // Temporarily disabled for debugging
     createProxy(AUTH_SERVICE_URL)
   )
 

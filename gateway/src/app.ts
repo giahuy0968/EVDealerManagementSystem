@@ -41,8 +41,8 @@ export function createApp() {
   app.use(requestLogger)
   app.use(morgan('dev'))
 
-  // Rate limiting
-  app.use(globalRateLimiter)
+  // Rate limiting (disabled for debugging)
+  // app.use(globalRateLimiter)
 
   // Gateway health check
   app.get('/health', (_req, res) => {

@@ -5,9 +5,9 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
     plugins: [react()],
-    server: { port: 5175, strictPort: true, host: true,
+    server: { port: 5173, strictPort: false, host: true,
       proxy: { '/api': { target: env.VITE_API_URL || 'http://localhost:8080', changeOrigin: true, secure: false } }
     },
-    preview: { port: 5175, strictPort: true, host: true }
+    preview: { port: 5173, strictPort: false, host: true }
   }
 })
