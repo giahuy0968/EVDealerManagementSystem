@@ -2,7 +2,6 @@
 # DOCKER COMPOSE CHO AUTH-SERVICE VÀ CUSTOMER-SERVICE
 # CHỈ 2 services này + dependencies (RabbitMQ, Redis)
 # ===========================================
-version: "3.9"
 
 services:
   # ========================================
@@ -166,46 +165,6 @@ services:
       - evdms-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3002/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 90s
-
-  # ========================================
-  # MANUFACTURER SERVICE (Port 3004)
-  # ========================================
-  manufacturer-service:
-    build:
-      context: ./Manufactor_Service/manufacturer-service
-      dockerfile: Dockerfile
-    image: evdms-manufacturer-service:latest
-    container_name: evdms-manufacturer-service
-    restart: unless-stopped
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    ports:
-      - "3004:3004"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0
-      SPRING_DATASOURCE_USERNAME: postgres.grgbbhzjlddgocgyhekd
-      SPRING_DATASOURCE_PASSWORD: Abc@123456!
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_JPA_SHOW_SQL: false
-      SECURITY_JWT_SECRET: this-is-a-very-long-secret-key-for-jwt-token-validation-minimum-256-bits-required
-      SPRING_RABBITMQ_ENABLED: false
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: guest
-      SPRING_RABBITMQ_PASSWORD: guest
-      SERVER_PORT: 3004
-      SPRING_APPLICATION_NAME: manufacturer-service
-    networks:
-      - evdms-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3004/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
