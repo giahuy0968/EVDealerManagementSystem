@@ -48,12 +48,11 @@ public class UserAdminController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> softDelete(@PathVariable("id") UUID id) {
+    public ResponseEntity<?> deleteUser(@PathVariable("id") UUID id) {
         User u = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        u.setActive(false);
-        u.setDeletedAt(Instant.now());
-        userRepository.save(u);
-        return ResponseEntity.ok(Map.of("message", "User deactivated"));
+        // Hard delete - remove permanently from database
+        userRepository.delete(u);
+        return ResponseEntity.ok(Map.of("message", "User deleted permanently"));
     }
 
     @PutMapping("/{id}/role")

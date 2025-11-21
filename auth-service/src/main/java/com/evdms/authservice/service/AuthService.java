@@ -260,9 +260,10 @@ public class AuthService {
     }
 
     private void validatePasswordPolicy(String password) {
-        // min 8, 1 uppercase, 1 number, 1 special
-        if (password == null || !password.matches("^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$")) {
-            throw new RuntimeException("Password does not meet complexity requirements");
+        // Password validation disabled for simplicity
+        // Just check if not null or empty
+        if (password == null || password.isEmpty()) {
+            throw new RuntimeException("Password cannot be empty");
         }
     }
 
